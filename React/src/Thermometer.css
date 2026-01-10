@@ -1,0 +1,51 @@
+.thermometer {
+  position: relative;
+  width: 50px;
+  height: 150px; /* Adjust size as needed */
+  display: inline-block;
+}
+
+.stem {
+  position: absolute;
+  bottom: 20px; /* Space for bulb */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 120px;
+  border: 2px solid #333;
+  border-radius: 0 0 10px 10px;
+  background: #f0f0f0;
+  overflow: hidden;
+}
+
+.stem-fill {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: linear-gradient(to top, hsl(66, 100%, 63%), #ff8888); /* Red mercury */
+  transition: height 0.5s ease; /* Smooth animation */
+}
+
+.bulb {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid #333;
+  border-radius: 50%;
+  background: hsl(207, 100%, 63%);
+}
+
+.scale {
+  position: absolute;
+  right: -30px;
+  top: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #333;
+}

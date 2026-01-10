@@ -1,0 +1,25 @@
+import React from "react";
+import "./Main.css";
+
+function Main() {
+  return (
+    <div>
+      <p>
+        Readings From Sensors is an IoT web application that collects near
+        real-time data - such as temperature, humidity, and vibration - from
+        remote assets, including construction equipment and office buildings.
+        The application presents this information on a browser-based dashboard,
+        allowing users to monitor and analyse their assets from anywhere.
+      </p>
+
+      <p>
+        The platform is built with a React frontend, PHP backend, and MySQL
+        database, and leverages the LoRaWAN protocol in the EU868 MHz band for
+        reliable device-to-network communication. Data from connected sensors is
+        managed via The Things Network IoT network server.
+      </p>
+    </div>
+  );
+}
+
+export default Main;

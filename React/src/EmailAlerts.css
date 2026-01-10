@@ -1,0 +1,56 @@
+.email-alerts-container {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.alerts-intro {
+  margin-bottom: 12px;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.alerts-form {
+  max-width: 520px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.helper-text {
+  display: block;
+  margin-top: 4px;
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.alert {
+  margin-bottom: 15px;
+}
+
+input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+input[type="number"]:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.15rem rgba(0, 123, 255, 0.12);
+}

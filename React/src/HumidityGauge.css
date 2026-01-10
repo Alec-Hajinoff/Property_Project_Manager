@@ -1,0 +1,78 @@
+.gauge-wrapper {
+  position: relative;
+  display: inline-block;  /* lets you place several gauges side by side */
+}
+
+.gauge {
+  position: relative;
+  width: 150px;
+  height: 75px;
+  border-radius: 150px 150px 0 0;
+  background: conic-gradient(
+    from 180deg,
+    #4a90e2 0%,
+    #7ed321 50%,
+    #ff6b6b 100%
+  );
+  overflow: hidden;       /* keep clipping the lower half */
+}
+
+.needle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  height: 60px;
+  background: #333;
+  transform-origin: bottom center;
+  transition: transform 0.5s ease;
+}
+
+.labels {
+  position: absolute;
+  bottom: -20px;          /* now relative to gauge-wrapper, not clipped */
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #333;
+}
+
+/*
+.gauge {
+  position: relative;
+  width: 150px;
+  height: 75px; 
+  border-radius: 150px 150px 0 0;
+  background: conic-gradient(
+    from 180deg,
+    #4a90e2 0%,
+    #7ed321 50%,
+    #ff6b6b 100%
+  ); 
+  overflow: hidden;
+  display: inline-block; 
+}
+
+.needle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  height: 60px;
+  background: #333;
+  transform-origin: bottom center;
+  transition: transform 0.5s ease;
+}
+
+.labels {
+  position: absolute;
+  bottom: -20px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #333;
+}
+*/
