@@ -26,7 +26,7 @@ function UserLogin() {
     try {
       const data = await loginUser(formData);
       if (data.status === "success") {
-          navigate("/PullReadings");
+          navigate("/UserAccountWelcome");
       } else {
         setErrorMessage("Sign in failed. Please try again.");
       }

@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 $servername = "127.0.0.1";
 $username = "root";
 $passwordServer = "";
-$dbname = "readings_from_sensors";
+$dbname = "property_project_manager";
 
 try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $passwordServer);
