@@ -1,5 +1,5 @@
 import React from "react";
-import blue from "./Readings_From_Sensors_Logo.png";
+import blue from "./Property_Project_Manager_Logo.png";
 import "./Header.css";
 
 function Header() {
