@@ -62,3 +62,34 @@ export const logoutUser = async () => {
     throw new Error("An error occurred during logout.");
   }
 };
+
+// createProject() sends new project data to the backend.
+
+export const createProject = async (projectData) => {
+  try {
+    const response = await fetch(
+      "http://localhost:8001/Property_Project_Manager/create_project.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(projectData),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to create project");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error creating project:", error);
+    throw new Error(
+      error.message || "An error occurred while creating the project."
+    );
+  }
+};
