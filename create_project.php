@@ -55,13 +55,12 @@ if ($input === null) {
     exit;
 }
 
-// Validate and sanitize input
+// Validate and sanitise input
 $project_address = isset($input['project_address']) ? trim($input['project_address']) : null;
-$client_party = isset($input['client_party']) ? trim($input['client_party']) : null;
 $status = isset($input['status']) ? trim($input['status']) : null;
 
 // Check required fields
-if (!$project_address || !$client_party || !$status) {
+if (!$project_address || !$status) {
     echo json_encode(['success' => false, 'message' => 'All fields are required']);
     exit;
 }
@@ -74,34 +73,11 @@ if (!in_array($status, $allowed_statuses)) {
 }
 
 try {
-    // Start atomic transaction
-    $conn->beginTransaction();
-
-    // 1. Insert into parties table - type column is NOT NULL, so we must provide a value
-    $party_type = 'Client';  // Assuming 'client' is the appropriate type for client parties
-
-    $party_sql = 'INSERT INTO parties (name, builder_id, type, notes) 
-                  VALUES (:name, :builder_id, :type, NULL)';
-    $party_stmt = $conn->prepare($party_sql);
-    $party_stmt->bindParam(':name', $client_party);
-    $party_stmt->bindParam(':builder_id', $builder_id, PDO::PARAM_INT);
-    $party_stmt->bindParam(':type', $party_type);
-
-    if (!$party_stmt->execute()) {
-        $errorInfo = $party_stmt->errorInfo();
-        throw new Exception('Failed to create client party: ' . ($errorInfo[2] ?? 'Unknown error'));
-    }
-
-    // Get the last inserted party ID
-    $client_party_id = $conn->lastInsertId();
-
-    // 2. Insert into projects table
-    $project_sql = 'INSERT INTO projects (project_address, status, client_party_id, builder_id) 
-                    VALUES (:project_address, :status, :client_party_id, :builder_id)';
+    $project_sql = 'INSERT INTO projects (project_address, status, builder_id) 
+                    VALUES (:project_address, :status, :builder_id)';
     $project_stmt = $conn->prepare($project_sql);
     $project_stmt->bindParam(':project_address', $project_address);
     $project_stmt->bindParam(':status', $status);
-    $project_stmt->bindParam(':client_party_id', $client_party_id, PDO::PARAM_INT);
     $project_stmt->bindParam(':builder_id', $builder_id, PDO::PARAM_INT);
 
     if (!$project_stmt->execute()) {
@@ -109,29 +85,13 @@ try {
         throw new Exception('Failed to create project: ' . ($errorInfo[2] ?? 'Unknown error'));
     }
 
-    // Get the last inserted project ID
-    $project_id = $conn->lastInsertId();
-
-    // Commit transaction
-    $conn->commit();
-
-    // Return success response with IDs
     echo json_encode([
         'success' => true,
-        'message' => 'Project created successfully',
-        'project_id' => $project_id,
-        'client_party_id' => $client_party_id
+        'message' => 'Project created successfully'
     ]);
 } catch (Exception $e) {
-    // Rollback on any error
-    if ($conn && $conn->inTransaction()) {
-        $conn->rollBack();
-    }
-
-    // Log the actual error for debugging
     error_log('Create project error: ' . $e->getMessage());
 
-    // Return detailed error in development
     $errorMessage = 'Failed to create project. Please try again.';
     if (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
         $errorMessage .= ' Debug: ' . $e->getMessage();

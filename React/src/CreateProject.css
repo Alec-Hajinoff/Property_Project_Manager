@@ -1,0 +1,64 @@
+/* Form input styling */
+.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Radio button styling */
+.form-check-input:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Button styling */
+.btn-primary {
+  padding: 0.5rem 2rem;
+  font-weight: 500;
+}
+
+.btn-light {
+  font-weight: 500;
+}
+
+/* Card styling */
+.card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Alert animation for success message */
+.alert-success {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .d-flex.flex-wrap.gap-3 {
+    gap: 1rem !important;
+  }
+
+  .form-check {
+    margin-right: 1rem;
+  }
+}

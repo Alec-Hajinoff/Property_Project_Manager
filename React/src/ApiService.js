@@ -93,3 +93,33 @@ export const createProject = async (projectData) => {
     );
   }
 };
+
+// existingProjects() fetches existing project data out of the database; used in file ExistingProjects.js.
+
+export const existingProjects = async () => {
+  try {
+    const response = await fetch(
+      "http://localhost:8001/Property_Project_Manager/existing_projects.php",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "Failed to fetch projects");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    throw new Error(
+      error.message || "An error occurred while fetching projects."
+    );
+  }
+};
