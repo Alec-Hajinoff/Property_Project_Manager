@@ -7,8 +7,9 @@ function ExistingProjects() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const [expandedProjects, setExpandedProjects] = useState(new Set());
 
   const loadProjects = useCallback(async (isRefresh = false) => {
     if (isRefresh) {
@@ -22,6 +23,7 @@ function ExistingProjects() {
       const response = await existingProjects();
       setProjects(response.projects || []);
 
+      setExpandedProjects(new Set());
       setHasMore(false);
     } catch (err) {
       setError(err.message || "Failed to load projects");
@@ -34,19 +36,19 @@ function ExistingProjects() {
     }
   }, []);
 
-  // Initial load
-  useEffect(() => {
-    loadProjects();
-  }, [loadProjects]);
-
-  const handleScroll = () => {
-    // Placeholder for infinite scroll implementation
+  const toggleProjectExpansion = (index) => {
+    const newExpanded = new Set(expandedProjects);
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index);
+    } else {
+      newExpanded.add(index);
+    }
+    setExpandedProjects(newExpanded);
   };
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    loadProjects();
+  }, [loadProjects]);
 
   if (isLoading) {
     return (
@@ -111,30 +113,51 @@ function ExistingProjects() {
           </div>
         ) : (
           <div className="projects-list">
-            {projects.map((project, index) => (
-              <div key={index} className="card mb-3">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-start">
-                    <div>
-                      <h5 className="card-title">{project.project_address}</h5>
-                      <div className="d-flex gap-3 mt-2">
-                        <span className="badge bg-secondary">
-                          {project.status}
-                        </span>
-                        <small className="text-muted">
-                          Created:{" "}
-                          {new Date(project.created_at).toLocaleDateString()}
-                        </small>
+            {projects.map((project, index) => {
+              const isExpanded = expandedProjects.has(index);
+
+              return (
+                <div key={index} className="card mb-3">
+                  <div className="card-body">
+                    <div className="d-flex justify-content-between align-items-start">
+                      <div style={{ flex: 1 }}>
+                        <h5 className="card-title mb-0">
+                          {project.project_address}
+                        </h5>
+
+                        {isExpanded && (
+                          <div className="mt-3">
+                            <div className="d-flex gap-3">
+                              <span className="badge bg-secondary">
+                                {project.status}
+                              </span>
+                              <small className="text-muted">
+                                Created:{" "}
+                                {new Date(
+                                  project.created_at
+                                ).toLocaleDateString()}
+                              </small>
+                            </div>
+                          </div>
+                        )}
                       </div>
+
+                      <button
+                        className="btn btn-outline-secondary btn-sm ms-3"
+                        onClick={() => toggleProjectExpansion(index)}
+                        aria-expanded={isExpanded}
+                        aria-controls={`project-details-${index}`}
+                      >
+                        {isExpanded ? "Hide details" : "Show details"}
+                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
-        {/* Placeholder for infinite scroll loading indicator */}
         {hasMore && projects.length > 0 && (
           <div className="text-center mt-3">
             <div className="spinner-border spinner-border-sm" role="status">
