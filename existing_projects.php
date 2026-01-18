@@ -1,7 +1,6 @@
 <?php
 require_once 'session_config.php';
 
-// Enable error reporting for debugging (remove in production)
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -27,7 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit;
 }
 
-// Check if user is logged in
 if (!isset($_SESSION['id'])) {
     echo json_encode(['success' => false, 'message' => 'Authentication required. Please log in.']);
     exit;
@@ -50,8 +48,7 @@ try {
 }
 
 try {
-    // Fetch projects for the logged-in builder
-    $sql = 'SELECT project_address, status, created_at 
+    $sql = 'SELECT id, builder_id, project_address, status, created_at 
             FROM projects 
             WHERE builder_id = :builder_id 
             ORDER BY created_at DESC';
@@ -65,16 +62,13 @@ try {
 
     $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Return success response with projects
     echo json_encode([
         'success' => true,
         'projects' => $projects
     ]);
 } catch (Exception $e) {
-    // Log the actual error for debugging
     error_log('Fetch projects error: ' . $e->getMessage());
 
-    // Return error response
     echo json_encode([
         'success' => false,
         'message' => 'Failed to load projects. Please try again.'

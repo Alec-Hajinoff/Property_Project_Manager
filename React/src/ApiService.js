@@ -123,3 +123,34 @@ export const existingProjects = async () => {
     );
   }
 };
+
+// createRecord() sends new record data to the backend.
+
+export const createRecord = async (recordData) => {
+  try {
+    const response = await fetch(
+      "http://localhost:8001/Property_Project_Manager/create_record.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(recordData),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "Failed to create record");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error creating record:", error);
+    throw new Error(
+      error.message || "An error occurred while creating the record."
+    );
+  }
+};

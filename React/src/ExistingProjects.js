@@ -1,6 +1,9 @@
+// This files displays in the UI all the current projects stored in the database for this particular builder.
+
 import React, { useState, useEffect, useCallback } from "react";
 import "./ExistingProjects.css";
 import { existingProjects } from "./ApiService";
+import Records from "./Records";
 
 function ExistingProjects() {
   const [projects, setProjects] = useState([]);
@@ -134,10 +137,15 @@ function ExistingProjects() {
                               <small className="text-muted">
                                 Created:{" "}
                                 {new Date(
-                                  project.created_at
+                                  project.created_at,
                                 ).toLocaleDateString()}
                               </small>
                             </div>
+
+                            <Records
+                              projectId={project.id}
+                              builderId={project.builder_id}
+                            />
                           </div>
                         )}
                       </div>
@@ -155,14 +163,6 @@ function ExistingProjects() {
                 </div>
               );
             })}
-          </div>
-        )}
-
-        {hasMore && projects.length > 0 && (
-          <div className="text-center mt-3">
-            <div className="spinner-border spinner-border-sm" role="status">
-              <span className="visually-hidden">Loading more...</span>
-            </div>
           </div>
         )}
       </div>
