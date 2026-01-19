@@ -9,11 +9,18 @@ function Records({ projectId, builderId }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [addParty, setAddParty] = useState(false);
 
   const [formData, setFormData] = useState({
     record_type: "Agreement",
     title: "",
     details: "",
+  });
+
+  const [partyData, setPartyData] = useState({
+    name: "",
+    type: "Client",
+    notes: "",
   });
 
   const recordTypes = [
@@ -26,6 +33,14 @@ function Records({ projectId, builderId }) {
     "General",
   ];
 
+  const partyTypes = [
+    "Client",
+    "Supplier",
+    "Subcontractor",
+    "Professional service (e.g. Architect)",
+    "Authority (e.g. Council)",
+  ];
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -34,6 +49,28 @@ function Records({ projectId, builderId }) {
     });
 
     if (errorMessage) setErrorMessage("");
+  };
+
+  const handlePartyInputChange = (e) => {
+    const { name, value } = e.target;
+    setPartyData({
+      ...partyData,
+      [name]: value,
+    });
+
+    if (errorMessage) setErrorMessage("");
+  };
+
+  const handleAddPartyToggle = () => {
+    setAddParty(!addParty);
+
+    if (addParty) {
+      setPartyData({
+        name: "",
+        type: "Client",
+        notes: "",
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -55,6 +92,10 @@ function Records({ projectId, builderId }) {
         builder_id: builderId,
       };
 
+      if (addParty && (partyData.name.trim() || partyData.notes.trim())) {
+        recordData.party = { ...partyData };
+      }
+
       await createRecord(recordData);
 
       setSuccessMessage("Record added");
@@ -64,6 +105,13 @@ function Records({ projectId, builderId }) {
         title: "",
         details: "",
       });
+
+      setPartyData({
+        name: "",
+        type: "Client",
+        notes: "",
+      });
+      setAddParty(false);
 
       setTimeout(() => {
         setSuccessMessage("");
@@ -79,6 +127,20 @@ function Records({ projectId, builderId }) {
 
   const toggleFormVisibility = () => {
     setIsFormVisible(!isFormVisible);
+
+    if (isFormVisible) {
+      setFormData({
+        record_type: "Agreement",
+        title: "",
+        details: "",
+      });
+      setPartyData({
+        name: "",
+        type: "Client",
+        notes: "",
+      });
+      setAddParty(false);
+    }
 
     setErrorMessage("");
     setSuccessMessage("");
@@ -150,6 +212,80 @@ function Records({ projectId, builderId }) {
                   required
                 />
               </div>
+
+              <div className="mb-3">
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="addParty"
+                    checked={addParty}
+                    onChange={handleAddPartyToggle}
+                  />
+                  <label className="form-check-label" htmlFor="addParty">
+                    Would you like to add a party to this record?
+                  </label>
+                </div>
+              </div>
+
+              {addParty && (
+                <div className="card mb-3 border-primary">
+                  <div className="card-body">
+                    <h6 className="card-subtitle mb-3 text-muted">
+                      Party Information (Optional)
+                    </h6>
+
+                    <div className="mb-3">
+                      <label htmlFor="party_name" className="form-label">
+                        Type party name
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="party_name"
+                        name="name"
+                        value={partyData.name}
+                        onChange={handlePartyInputChange}
+                        placeholder="Enter party name"
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label htmlFor="party_type" className="form-label">
+                        Choose party type
+                      </label>
+                      <select
+                        className="form-select"
+                        id="party_type"
+                        name="type"
+                        value={partyData.type}
+                        onChange={handlePartyInputChange}
+                      >
+                        {partyTypes.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="mb-3">
+                      <label htmlFor="party_notes" className="form-label">
+                        Add notes
+                      </label>
+                      <textarea
+                        className="form-control"
+                        id="party_notes"
+                        name="notes"
+                        rows="2"
+                        value={partyData.notes}
+                        onChange={handlePartyInputChange}
+                        placeholder="Enter party notes"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {errorMessage && (
                 <div className="alert alert-danger" role="alert">

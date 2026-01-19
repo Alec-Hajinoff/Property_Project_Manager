@@ -42,6 +42,8 @@ try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $passwordServer);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+
+    $conn->beginTransaction();
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => 'Database connection failed']);
     exit;
@@ -58,6 +60,9 @@ $builder_id = isset($input['builder_id']) ? (int) $input['builder_id'] : null;
 $record_type = isset($input['record_type']) ? trim($input['record_type']) : null;
 $title = isset($input['title']) ? trim($input['title']) : null;
 $details = isset($input['details']) ? trim($input['details']) : null;
+
+$party_data = isset($input['party']) ? $input['party'] : null;
+$party_id = null;
 
 if (!$project_id || !$builder_id || !$record_type || !$title) {
     echo json_encode(['success' => false, 'message' => 'All fields except details are required']);
@@ -107,12 +112,56 @@ try {
 
     $record_id = $conn->lastInsertId();
 
+    if ($party_data !== null) {
+        $party_name = isset($party_data['name']) ? trim($party_data['name']) : '';
+        $party_type = isset($party_data['type']) ? trim($party_data['type']) : '';
+        $party_notes = isset($party_data['notes']) ? trim($party_data['notes']) : '';
+
+        if (!empty($party_name)) {
+            $allowed_party_types = ['Client', 'Supplier', 'Subcontractor', 'Professional service (e.g. Architect)', 'Authority (e.g. Council)'];
+            if (empty($party_type) || !in_array($party_type, $allowed_party_types)) {
+                $party_type = 'Client';
+            }
+
+            $checkParty = $conn->prepare('SELECT id FROM parties WHERE builder_id = ? AND name = ?');
+            $checkParty->execute([$builder_id, $party_name]);
+            $existingParty = $checkParty->fetch();
+
+            if ($existingParty) {
+                $party_id = $existingParty['id'];
+
+                if (!empty($party_notes)) {
+                    $updateParty = $conn->prepare('UPDATE parties SET notes = COALESCE(?, notes), type = ? WHERE id = ?');
+                    $updateParty->execute([$party_notes, $party_type, $party_id]);
+                }
+            } else {
+                $createParty = $conn->prepare('INSERT INTO parties (builder_id, name, type, notes) VALUES (?, ?, ?, ?)');
+                $createParty->execute([$builder_id, $party_name, $party_type, $party_notes]);
+                $party_id = $conn->lastInsertId();
+            }
+
+            if ($party_id) {
+                $linkParty = $conn->prepare('INSERT INTO record_parties (record_id, party_id) VALUES (?, ?)');
+                $linkParty->execute([$record_id, $party_id]);
+
+                if (!$linkParty->rowCount()) {
+                    throw new Exception('Failed to link party to record');
+                }
+            }
+        }
+    }
+
+    $conn->commit();
+
     echo json_encode([
         'success' => true,
         'message' => 'Record created successfully',
-        'record_id' => $record_id
+        'record_id' => $record_id,
+        'party_linked' => ($party_id !== null)
     ]);
 } catch (Exception $e) {
+    $conn->rollBack();
+
     error_log('Create record error: ' . $e->getMessage());
 
     echo json_encode([
