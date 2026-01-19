@@ -11,7 +11,7 @@ export const registerUser = async (formData) => {
         },
         body: JSON.stringify(formData),
         credentials: "include",
-      }
+      },
     );
 
     const data = await response.json();
@@ -33,7 +33,7 @@ export const loginUser = async (formData) => {
         },
         credentials: "include",
         body: JSON.stringify(formData),
-      }
+      },
     );
 
     const data = await response.json();
@@ -51,7 +51,7 @@ export const logoutUser = async () => {
       {
         method: "POST",
         credentials: "include",
-      }
+      },
     );
 
     if (!response.ok) {
@@ -76,7 +76,7 @@ export const createProject = async (projectData) => {
         },
         credentials: "include",
         body: JSON.stringify(projectData),
-      }
+      },
     );
 
     const data = await response.json();
@@ -89,7 +89,7 @@ export const createProject = async (projectData) => {
   } catch (error) {
     console.error("Error creating project:", error);
     throw new Error(
-      error.message || "An error occurred while creating the project."
+      error.message || "An error occurred while creating the project.",
     );
   }
 };
@@ -106,7 +106,7 @@ export const existingProjects = async () => {
           "Content-Type": "application/json",
         },
         credentials: "include",
-      }
+      },
     );
 
     const data = await response.json();
@@ -119,7 +119,7 @@ export const existingProjects = async () => {
   } catch (error) {
     console.error("Error fetching projects:", error);
     throw new Error(
-      error.message || "An error occurred while fetching projects."
+      error.message || "An error occurred while fetching projects.",
     );
   }
 };
@@ -137,7 +137,7 @@ export const createRecord = async (recordData) => {
         },
         credentials: "include",
         body: JSON.stringify(recordData),
-      }
+      },
     );
 
     const data = await response.json();
@@ -150,7 +150,7 @@ export const createRecord = async (recordData) => {
   } catch (error) {
     console.error("Error creating record:", error);
     throw new Error(
-      error.message || "An error occurred while creating the record."
+      error.message || "An error occurred while creating the record.",
     );
   }
 };

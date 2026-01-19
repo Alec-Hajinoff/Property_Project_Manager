@@ -1,0 +1,32 @@
+/* Record item styling */
+.record-item .card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+}
+
+.record-item .card-body {
+  padding: 0.75rem;
+}
+
+/* Badge styling */
+.badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.4rem;
+}
+
+/* Timeline heading */
+h6 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+/* Small text styling */
+.small {
+  font-size: 0.8rem;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}

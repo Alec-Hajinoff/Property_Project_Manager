@@ -48,26 +48,61 @@ try {
 }
 
 try {
-    $sql = 'SELECT id, builder_id, project_address, status, created_at 
-            FROM projects 
-            WHERE builder_id = :builder_id 
-            ORDER BY created_at DESC';
+    $projectsSql = 'SELECT id, builder_id, project_address, status, created_at 
+                   FROM projects 
+                   WHERE builder_id = :builder_id 
+                   ORDER BY created_at DESC';
 
-    $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':builder_id', $builder_id, PDO::PARAM_INT);
+    $projectsStmt = $conn->prepare($projectsSql);
+    $projectsStmt->bindParam(':builder_id', $builder_id, PDO::PARAM_INT);
 
-    if (!$stmt->execute()) {
+    if (!$projectsStmt->execute()) {
         throw new Exception('Failed to fetch projects');
     }
 
-    $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $projects = $projectsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $projectIds = array_column($projects, 'id');
+
+    $recordsByProject = [];
+    if (!empty($projectIds)) {
+        $placeholders = str_repeat('?,', count($projectIds) - 1) . '?';
+
+        $recordsSql = "SELECT id, project_id, record_type, title, details, record_datetime, created_at
+                      FROM records 
+                      WHERE project_id IN ($placeholders) 
+                      AND builder_id = ?
+                      ORDER BY record_datetime DESC, created_at DESC";
+
+        $recordsStmt = $conn->prepare($recordsSql);
+
+        $paramIndex = 1;
+        foreach ($projectIds as $projectId) {
+            $recordsStmt->bindValue($paramIndex++, $projectId, PDO::PARAM_INT);
+        }
+        $recordsStmt->bindValue($paramIndex, $builder_id, PDO::PARAM_INT);
+
+        if (!$recordsStmt->execute()) {
+            throw new Exception('Failed to fetch records');
+        }
+
+        $allRecords = $recordsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($allRecords as $record) {
+            $recordsByProject[$record['project_id']][] = $record;
+        }
+    }
+
+    foreach ($projects as &$project) {
+        $project['records'] = $recordsByProject[$project['id']] ?? [];
+    }
 
     echo json_encode([
         'success' => true,
         'projects' => $projects
     ]);
 } catch (Exception $e) {
-    error_log('Fetch projects error: ' . $e->getMessage());
+    error_log('Fetch projects/records error: ' . $e->getMessage());
 
     echo json_encode([
         'success' => false,

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import "./ExistingProjects.css";
 import { existingProjects } from "./ApiService";
 import Records from "./Records";
+import ExistingRecords from "./ExistingRecords";
 
 function ExistingProjects() {
   const [projects, setProjects] = useState([]);
@@ -146,6 +147,8 @@ function ExistingProjects() {
                               projectId={project.id}
                               builderId={project.builder_id}
                             />
+
+                            <ExistingRecords records={project.records || []} />
                           </div>
                         )}
                       </div>
