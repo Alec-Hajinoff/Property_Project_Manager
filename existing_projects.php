@@ -62,7 +62,7 @@ try {
 
     $projects = $projectsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $projectIds = array_column($projects, 'id');
+    $projectIds = array_column($projects, 'id'); // $projectIds creates an array of 'id' column values for each project. 
 
     $recordsByProject = [];
     if (!empty($projectIds)) {

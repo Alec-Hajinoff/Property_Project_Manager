@@ -10,7 +10,6 @@ function ExistingProjects() {
   const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [hasMore, setHasMore] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const [expandedProjects, setExpandedProjects] = useState(new Set());
@@ -28,7 +27,6 @@ function ExistingProjects() {
       setProjects(response.projects || []);
 
       setExpandedProjects(new Set());
-      setHasMore(false);
     } catch (err) {
       setError(err.message || "Failed to load projects");
     } finally {
