@@ -68,11 +68,26 @@ try {
     if (!empty($projectIds)) {
         $placeholders = str_repeat('?,', count($projectIds) - 1) . '?';
 
-        $recordsSql = "SELECT id, project_id, record_type, title, details, record_datetime, created_at
-                      FROM records 
-                      WHERE project_id IN ($placeholders) 
-                      AND builder_id = ?
-                      ORDER BY record_datetime DESC, created_at DESC";
+        $recordsSql = "SELECT 
+                        r.id,
+                        r.project_id,
+                        r.builder_id,
+                        r.record_type,
+                        r.title,
+                        r.details,
+                        r.record_datetime,
+                        r.created_at,
+                        p.id as party_id,
+                        p.name as party_name,
+                        p.type as party_type,
+                        p.notes as party_notes,
+                        p.created_at as party_created_at  
+                      FROM records r
+                      LEFT JOIN record_parties rp ON r.id = rp.record_id
+                      LEFT JOIN parties p ON rp.party_id = p.id
+                      WHERE r.project_id IN ($placeholders) 
+                      AND r.builder_id = ?
+                      ORDER BY r.record_datetime DESC, r.created_at DESC";
 
         $recordsStmt = $conn->prepare($recordsSql);
 
@@ -83,18 +98,60 @@ try {
         $recordsStmt->bindValue($paramIndex, $builder_id, PDO::PARAM_INT);
 
         if (!$recordsStmt->execute()) {
-            throw new Exception('Failed to fetch records');
+            throw new Exception('Failed to fetch records with parties');
         }
 
-        $allRecords = $recordsStmt->fetchAll(PDO::FETCH_ASSOC);
+        $allRecordsWithParties = $recordsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        foreach ($allRecords as $record) {
-            $recordsByProject[$record['project_id']][] = $record;
+        foreach ($allRecordsWithParties as $row) {
+            $projectId = $row['project_id'];
+            $recordId = $row['id'];
+
+            if (!isset($recordsByProject[$projectId][$recordId])) {
+                $recordsByProject[$projectId][$recordId] = [
+                    'id' => $recordId,
+                    'project_id' => $projectId,
+                    'builder_id' => $row['builder_id'],
+                    'record_type' => $row['record_type'],
+                    'title' => $row['title'],
+                    'details' => $row['details'],
+                    'record_datetime' => $row['record_datetime'],
+                    'created_at' => $row['created_at'],
+                    'parties' => []
+                ];
+            }
+
+            if ($row['party_id'] !== null) {
+                $party = [
+                    'id' => $row['party_id'],
+                    'name' => $row['party_name'],
+                    'type' => $row['party_type'],
+                    'notes' => $row['party_notes'],
+                    'created_at' => $row['party_created_at']
+                ];
+
+                $partyExists = false;
+                foreach ($recordsByProject[$projectId][$recordId]['parties'] as $existingParty) {
+                    if ($existingParty['id'] == $party['id']) {
+                        $partyExists = true;
+                        break;
+                    }
+                }
+
+                if (!$partyExists) {
+                    $recordsByProject[$projectId][$recordId]['parties'][] = $party;
+                }
+            }
         }
     }
 
     foreach ($projects as &$project) {
-        $project['records'] = $recordsByProject[$project['id']] ?? [];
+        $projectId = $project['id'];
+        if (isset($recordsByProject[$projectId])) {
+            $project['records'] = array_values($recordsByProject[$projectId]);
+        } else {
+            $project['records'] = [];
+        }
     }
 
     echo json_encode([
