@@ -126,17 +126,16 @@ export const existingProjects = async () => {
 
 // createRecord() sends new record data to the backend.
 
-export const createRecord = async (recordData) => {
+export const createRecord = async (formData) => {
   try {
     const response = await fetch(
       "http://localhost:8001/Property_Project_Manager/create_record.php",
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+
+        headers: {},
         credentials: "include",
-        body: JSON.stringify(recordData),
+        body: formData,
       },
     );
 

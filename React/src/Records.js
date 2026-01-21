@@ -11,7 +11,7 @@ function Records({ projectId, builderId }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [addParty, setAddParty] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [formValues, setFormValues] = useState({
     record_type: "Agreement",
     title: "",
     details: "",
@@ -43,8 +43,8 @@ function Records({ projectId, builderId }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormValues({
+      ...formValues,
       [name]: value,
     });
 
@@ -76,7 +76,7 @@ function Records({ projectId, builderId }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.title.trim() || !formData.details.trim()) {
+    if (!formValues.title.trim() || !formValues.details.trim()) {
       setErrorMessage("Title and details are required");
       return;
     }
@@ -86,21 +86,25 @@ function Records({ projectId, builderId }) {
     setSuccessMessage("");
 
     try {
-      const recordData = {
-        ...formData,
-        project_id: projectId,
-        builder_id: builderId,
-      };
+      const formData = new FormData();
+
+      formData.append("record_type", formValues.record_type);
+      formData.append("title", formValues.title);
+      formData.append("details", formValues.details);
+      formData.append("project_id", projectId.toString());
+      formData.append("builder_id", builderId.toString());
 
       if (addParty && (partyData.name.trim() || partyData.notes.trim())) {
-        recordData.party = { ...partyData };
+        formData.append("party[name]", partyData.name);
+        formData.append("party[type]", partyData.type);
+        formData.append("party[notes]", partyData.notes);
       }
 
-      await createRecord(recordData);
+      await createRecord(formData);
 
       setSuccessMessage("Record added");
 
-      setFormData({
+      setFormValues({
         record_type: "Agreement",
         title: "",
         details: "",
@@ -129,7 +133,7 @@ function Records({ projectId, builderId }) {
     setIsFormVisible(!isFormVisible);
 
     if (isFormVisible) {
-      setFormData({
+      setFormValues({
         record_type: "Agreement",
         title: "",
         details: "",
@@ -170,7 +174,7 @@ function Records({ projectId, builderId }) {
                   className="form-select"
                   id="record_type"
                   name="record_type"
-                  value={formData.record_type}
+                  value={formValues.record_type}
                   onChange={handleInputChange}
                 >
                   {recordTypes.map((type) => (
@@ -190,7 +194,7 @@ function Records({ projectId, builderId }) {
                   className="form-control"
                   id="title"
                   name="title"
-                  value={formData.title}
+                  value={formValues.title}
                   onChange={handleInputChange}
                   placeholder="Enter short description"
                   required
@@ -206,7 +210,7 @@ function Records({ projectId, builderId }) {
                   id="details"
                   name="details"
                   rows="3"
-                  value={formData.details}
+                  value={formValues.details}
                   onChange={handleInputChange}
                   placeholder="Enter detailed notes"
                   required

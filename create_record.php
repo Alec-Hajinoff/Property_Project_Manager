@@ -49,19 +49,35 @@ try {
     exit;
 }
 
-$input = json_decode(file_get_contents('php://input'), true);
-if ($input === null) {
-    echo json_encode(['success' => false, 'message' => 'Invalid JSON input']);
-    exit;
+$content_type = $_SERVER['CONTENT_TYPE'] ?? '';
+
+if (strpos($content_type, 'multipart/form-data') !== false ||
+        strpos($content_type, 'application/x-www-form-urlencoded') !== false) {
+    $project_id = isset($_POST['project_id']) ? (int) $_POST['project_id'] : null;
+    $builder_id = isset($_POST['builder_id']) ? (int) $_POST['builder_id'] : null;
+    $record_type = isset($_POST['record_type']) ? trim($_POST['record_type']) : null;
+    $title = isset($_POST['title']) ? trim($_POST['title']) : null;
+    $details = isset($_POST['details']) ? trim($_POST['details']) : null;
+
+    $party_data = null;
+    if (isset($_POST['party']) && is_array($_POST['party'])) {
+        $party_data = $_POST['party'];
+    }
+} else {
+    $input = json_decode(file_get_contents('php://input'), true);
+    if ($input === null) {
+        echo json_encode(['success' => false, 'message' => 'Invalid JSON input']);
+        exit;
+    }
+
+    $project_id = isset($input['project_id']) ? (int) $input['project_id'] : null;
+    $builder_id = isset($input['builder_id']) ? (int) $input['builder_id'] : null;
+    $record_type = isset($input['record_type']) ? trim($input['record_type']) : null;
+    $title = isset($input['title']) ? trim($input['title']) : null;
+    $details = isset($input['details']) ? trim($input['details']) : null;
+    $party_data = isset($input['party']) ? $input['party'] : null;
 }
 
-$project_id = isset($input['project_id']) ? (int) $input['project_id'] : null;
-$builder_id = isset($input['builder_id']) ? (int) $input['builder_id'] : null;
-$record_type = isset($input['record_type']) ? trim($input['record_type']) : null;
-$title = isset($input['title']) ? trim($input['title']) : null;
-$details = isset($input['details']) ? trim($input['details']) : null;
-
-$party_data = isset($input['party']) ? $input['party'] : null;
 $party_id = null;
 
 if (!$project_id || !$builder_id || !$record_type || !$title) {
