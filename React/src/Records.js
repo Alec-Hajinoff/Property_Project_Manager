@@ -1,6 +1,6 @@
 // This file allows a builder to create a new record related to a given project.
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./Records.css";
 import { createRecord } from "./ApiService";
 
@@ -10,6 +10,8 @@ function Records({ projectId, builderId }) {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [addParty, setAddParty] = useState(false);
+  const [addAttachments, setAddAttachments] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
   const [formValues, setFormValues] = useState({
     record_type: "Agreement",
@@ -22,6 +24,8 @@ function Records({ projectId, builderId }) {
     type: "Client",
     notes: "",
   });
+
+  const fileInputRef = useRef(null);
 
   const recordTypes = [
     "Agreement",
@@ -40,6 +44,9 @@ function Records({ projectId, builderId }) {
     "Professional service (e.g. Architect)",
     "Authority (e.g. Council)",
   ];
+
+  const allowedFileTypes = [".pdf", ".png", ".jpg", ".jpeg"];
+  const acceptAttribute = allowedFileTypes.join(",");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -73,6 +80,45 @@ function Records({ projectId, builderId }) {
     }
   };
 
+  const handleAddAttachmentsToggle = () => {
+    setAddAttachments(!addAttachments);
+
+    if (addAttachments) {
+      setSelectedFiles([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+
+    const validFiles = files.filter((file) => {
+      const fileExtension = "." + file.name.split(".").pop().toLowerCase();
+      return allowedFileTypes.includes(fileExtension);
+    });
+
+    if (validFiles.length !== files.length) {
+      setErrorMessage("Only PDF, PNG, JPG, and JPEG files are allowed");
+    }
+
+    setSelectedFiles((prev) => [...prev, ...validFiles]);
+  };
+
+  const handleRemoveFile = (indexToRemove) => {
+    setSelectedFiles((prev) =>
+      prev.filter((_, index) => index !== indexToRemove),
+    );
+  };
+
+  const handleClearFiles = () => {
+    setSelectedFiles([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -100,9 +146,17 @@ function Records({ projectId, builderId }) {
         formData.append("party[notes]", partyData.notes);
       }
 
+      if (addAttachments && selectedFiles.length > 0) {
+        selectedFiles.forEach((file, index) => {
+          formData.append(`attachments[]`, file);
+        });
+      }
+
       await createRecord(formData);
 
-      setSuccessMessage("Record added");
+      setSuccessMessage(
+        "Record added" + (selectedFiles.length > 0 ? " with attachments" : ""),
+      );
 
       setFormValues({
         record_type: "Agreement",
@@ -116,6 +170,12 @@ function Records({ projectId, builderId }) {
         notes: "",
       });
       setAddParty(false);
+
+      setAddAttachments(false);
+      setSelectedFiles([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
 
       setTimeout(() => {
         setSuccessMessage("");
@@ -144,6 +204,12 @@ function Records({ projectId, builderId }) {
         notes: "",
       });
       setAddParty(false);
+
+      setAddAttachments(false);
+      setSelectedFiles([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
 
     setErrorMessage("");
@@ -287,6 +353,94 @@ function Records({ projectId, builderId }) {
                         placeholder="Enter party notes"
                       />
                     </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="mb-3">
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="addAttachments"
+                    checked={addAttachments}
+                    onChange={handleAddAttachmentsToggle}
+                  />
+                  <label className="form-check-label" htmlFor="addAttachments">
+                    Would you like to attach documents to this record?
+                  </label>
+                  <div className="form-text">
+                    Supported formats: PDF, PNG, JPEG
+                  </div>
+                </div>
+              </div>
+
+              {addAttachments && (
+                <div className="card mb-3 border-primary">
+                  <div className="card-body">
+                    <h6 className="card-subtitle mb-3 text-muted">
+                      Document Attachments (Optional)
+                    </h6>
+
+                    <div className="mb-3">
+                      <label htmlFor="file_upload" className="form-label">
+                        Select files
+                      </label>
+                      <input
+                        type="file"
+                        className="form-control"
+                        id="file_upload"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        accept={acceptAttribute}
+                        multiple
+                      />
+                      <div className="form-text">
+                        Hold Ctrl/Cmd to select multiple files
+                      </div>
+                    </div>
+
+                    {selectedFiles.length > 0 && (
+                      <div className="mb-3">
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                          <h6 className="mb-0">
+                            Selected Files ({selectedFiles.length})
+                          </h6>
+                          <button
+                            type="button"
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={handleClearFiles}
+                          >
+                            Clear All
+                          </button>
+                        </div>
+                        <div className="list-group">
+                          {selectedFiles.map((file, index) => (
+                            <div
+                              key={index}
+                              className="list-group-item d-flex justify-content-between align-items-center"
+                            >
+                              <div>
+                                <small className="text-primary">
+                                  {file.name}
+                                </small>
+                                <br />
+                                <small className="text-muted">
+                                  {(file.size / 1024).toFixed(2)} KB
+                                </small>
+                              </div>
+                              <button
+                                type="button"
+                                className="btn btn-outline-danger btn-sm"
+                                onClick={() => handleRemoveFile(index)}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

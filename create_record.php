@@ -167,13 +167,59 @@ try {
         }
     }
 
+    $attachments_processed = 0;
+    if (isset($_FILES['attachments']) && is_array($_FILES['attachments']['name'])) {
+        $allowed_mime_types = [
+            'application/pdf' => 'pdf',
+            'image/png' => 'png',
+            'image/jpeg' => 'jpeg',
+            'image/jpg' => 'jpg'
+        ];
+
+        for ($i = 0; $i < count($_FILES['attachments']['name']); $i++) {
+            if ($_FILES['attachments']['error'][$i] === UPLOAD_ERR_OK) {
+                $file_name = $_FILES['attachments']['name'][$i];
+                $file_tmp_name = $_FILES['attachments']['tmp_name'][$i];
+                $file_size = $_FILES['attachments']['size'][$i];
+                $file_type = $_FILES['attachments']['type'][$i];
+
+                if (!array_key_exists($file_type, $allowed_mime_types)) {
+                    throw new Exception("Invalid file type for: $file_name. Only PDF, PNG, JPEG allowed.");
+                }
+
+                $file_content = file_get_contents($file_tmp_name);
+                if ($file_content === false) {
+                    throw new Exception("Failed to read file: $file_name");
+                }
+
+                $stmt = $conn->prepare('INSERT INTO attachments (record_id, file_name, file_data, file_type) 
+                                        VALUES (:record_id, :file_name, :file_data, :file_type)');
+                $stmt->bindParam(':record_id', $record_id, PDO::PARAM_INT);
+                $stmt->bindParam(':file_name', $file_name);
+                $stmt->bindParam(':file_data', $file_content, PDO::PARAM_LOB);
+                $stmt->bindParam(':file_type', $file_type);
+
+                if (!$stmt->execute()) {
+                    throw new Exception("Failed to save attachment: $file_name");
+                }
+
+                $attachments_processed++;
+            } elseif ($_FILES['attachments']['error'][$i] !== UPLOAD_ERR_NO_FILE) {
+                $error_code = $_FILES['attachments']['error'][$i];
+                throw new Exception("File upload error for: $file_name (Code: $error_code)");
+            }
+        }
+    }
+
     $conn->commit();
 
     echo json_encode([
         'success' => true,
-        'message' => 'Record created successfully',
+        'message' => 'Record created successfully'
+            . ($attachments_processed > 0 ? " with $attachments_processed attachment(s)" : ''),
         'record_id' => $record_id,
-        'party_linked' => ($party_id !== null)
+        'party_linked' => ($party_id !== null),
+        'attachments_processed' => $attachments_processed
     ]);
 } catch (Exception $e) {
     $conn->rollBack();
@@ -182,7 +228,7 @@ try {
 
     echo json_encode([
         'success' => false,
-        'message' => 'Failed to create record. Please try again.'
+        'message' => 'Failed to create record: ' . $e->getMessage()
     ]);
 } finally {
     if ($conn) {
