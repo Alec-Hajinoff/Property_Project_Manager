@@ -64,8 +64,8 @@ try {
 
     $projectIds = array_column($projects, 'id'); // $projectIds creates an array of 'id' column values for each project. 
 
-    $recordsByProject = [];
-    if (!empty($projectIds)) {
+    $recordsByProject = []; // Array to organise records to project ID.
+    if (!empty($projectIds)) { // If a builder has no projects, the below code does not run.
         $placeholders = str_repeat('?,', count($projectIds) - 1) . '?';
 
         $recordsSql = "SELECT 
