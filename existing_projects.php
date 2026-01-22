@@ -62,10 +62,10 @@ try {
 
     $projects = $projectsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $projectIds = array_column($projects, 'id'); // $projectIds creates an array of 'id' column values for each project. 
+    $projectIds = array_column($projects, 'id');
 
-    $recordsByProject = []; // Array to organise records to project ID.
-    if (!empty($projectIds)) { // If a builder has no projects, the below code does not run.
+    $recordsByProject = [];
+    if (!empty($projectIds)) {
         $placeholders = str_repeat('?,', count($projectIds) - 1) . '?';
 
         $recordsSql = "SELECT 
@@ -81,13 +81,19 @@ try {
                         p.name as party_name,
                         p.type as party_type,
                         p.notes as party_notes,
-                        p.created_at as party_created_at  
+                        p.created_at as party_created_at,
+                        a.id as attachment_id,
+                        a.file_name as attachment_name,
+                        a.file_type as attachment_type,
+                        a.file_data as attachment_data,
+                        a.uploaded_at as attachment_uploaded_at
                       FROM records r
                       LEFT JOIN record_parties rp ON r.id = rp.record_id
                       LEFT JOIN parties p ON rp.party_id = p.id
+                      LEFT JOIN attachments a ON r.id = a.record_id
                       WHERE r.project_id IN ($placeholders) 
                       AND r.builder_id = ?
-                      ORDER BY r.record_datetime DESC, r.created_at DESC";
+                      ORDER BY r.record_datetime DESC, r.created_at DESC, a.uploaded_at ASC";
 
         $recordsStmt = $conn->prepare($recordsSql);
 
@@ -98,12 +104,12 @@ try {
         $recordsStmt->bindValue($paramIndex, $builder_id, PDO::PARAM_INT);
 
         if (!$recordsStmt->execute()) {
-            throw new Exception('Failed to fetch records with parties');
+            throw new Exception('Failed to fetch records with parties and attachments');
         }
 
-        $allRecordsWithParties = $recordsStmt->fetchAll(PDO::FETCH_ASSOC);
+        $allRecordsData = $recordsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        foreach ($allRecordsWithParties as $row) {
+        foreach ($allRecordsData as $row) {
             $projectId = $row['project_id'];
             $recordId = $row['id'];
 
@@ -117,7 +123,8 @@ try {
                     'details' => $row['details'],
                     'record_datetime' => $row['record_datetime'],
                     'created_at' => $row['created_at'],
-                    'parties' => []
+                    'parties' => [],
+                    'attachments' => []
                 ];
             }
 
@@ -140,6 +147,28 @@ try {
 
                 if (!$partyExists) {
                     $recordsByProject[$projectId][$recordId]['parties'][] = $party;
+                }
+            }
+
+            if ($row['attachment_id'] !== null) {
+                $attachment = [
+                    'id' => $row['attachment_id'],
+                    'file_name' => $row['attachment_name'],
+                    'file_type' => $row['attachment_type'],
+                    'file_data' => base64_encode($row['attachment_data']),  // Encode binary to base64 for JSON
+                    'uploaded_at' => $row['attachment_uploaded_at']
+                ];
+
+                $attachmentExists = false;
+                foreach ($recordsByProject[$projectId][$recordId]['attachments'] as $existingAttachment) {
+                    if ($existingAttachment['id'] == $attachment['id']) {
+                        $attachmentExists = true;
+                        break;
+                    }
+                }
+
+                if (!$attachmentExists) {
+                    $recordsByProject[$projectId][$recordId]['attachments'][] = $attachment;
                 }
             }
         }
