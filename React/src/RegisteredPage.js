@@ -6,12 +6,12 @@ function RegisteredPage() {
   return (
     <div className="container text-center">
       <div className="row">
-        <div className="col-12 col-md-8">
+        <div className="col-12 col-md-9">
           <p>
             Thank you for registering! Please log in using your credentials.
           </p>
         </div>
-        <div className="col-12 col-md-4">
+        <div className="col-12 col-md-3">
           <p className="footer">Registered user login:</p>
           <UserLogin />
         </div>
