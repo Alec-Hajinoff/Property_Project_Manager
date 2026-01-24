@@ -1,21 +1,59 @@
-input:valid {
-  background-color: ivory;
+.login-form {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.login-btn {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
   border: none;
-  outline: 2px solid deepskyblue;
-  border-radius: 5px;
-  accent-color: gold;
+  color: white;
+  padding: 0.75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  width: 100%;
+  transition: all 0.3s ease;
 }
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 18px;
+.login-btn:hover {
+  background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.footer {
-  background-color: rgb(236, 230, 230);
-  border-radius: 7px;
+.login-btn:active {
+  transform: translateY(0);
 }
 
-#logo {
-  height: 150px;
+.forgot-password {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.forgot-password a {
+  color: #3498db;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}
+
+.login-error {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #fdf2f2;
+  border-radius: 4px;
+  border-left: 3px solid #e74c3c;
+}
+
+.login-header {
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
 }

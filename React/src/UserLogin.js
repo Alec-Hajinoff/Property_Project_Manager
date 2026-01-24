@@ -26,9 +26,9 @@ function UserLogin() {
     try {
       const data = await loginUser(formData);
       if (data.status === "success") {
-          navigate("/UserAccountWelcome");
+        navigate("/UserAccountWelcome");
       } else {
-        setErrorMessage("Sign in failed. Please try again.");
+        setErrorMessage("Sign in failed. Please check your credentials.");
       }
     } catch (error) {
       setErrorMessage(error.message);
@@ -38,8 +38,11 @@ function UserLogin() {
   };
 
   return (
-    <form className="row g-2" onSubmit={handleSubmit}>
+    <form className="login-form" onSubmit={handleSubmit}>
       <div className="form-group">
+        <label htmlFor="yourEmailLogin" className="form-label">
+          Email Address
+        </label>
         <input
           autoComplete="off"
           type="email"
@@ -54,6 +57,9 @@ function UserLogin() {
         />
       </div>
       <div className="form-group">
+        <label htmlFor="yourPasswordLogin" className="form-label">
+          Password
+        </label>
         <input
           autoComplete="off"
           type="password"
@@ -66,20 +72,35 @@ function UserLogin() {
           onChange={handleChange}
         />
       </div>
-      <div id="error-message-one" className="error" aria-live="polite">
-        {errorMessage}
-      </div>
-      <button type="submit" className="btn btn-secondary" id="loginBtn">
-        Login
-        <span
-          className="spinner-border spinner-border-sm"
-          role="status"
-          aria-hidden="true"
-          id="spinnerLogin"
-          style={{ display: loading ? "inline-block" : "none" }}
-        ></span>
+
+      {errorMessage && (
+        <div className="login-error">
+          <i className="bi bi-exclamation-triangle me-1"></i>
+          {errorMessage}
+        </div>
+      )}
+
+      <button type="submit" className="login-btn mt-3" disabled={loading}>
+        {loading ? (
+          <>
+            <span
+              className="spinner-border spinner-border-sm me-2"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            Signing in...
+          </>
+        ) : (
+          <>
+            <i className="bi bi-box-arrow-in-right me-2"></i>
+            Sign In
+          </>
+        )}
       </button>
-      <div id="liveAlertPlaceholder"></div>
+
+      <div className="forgot-password">
+        <a href="/forgot-password">Forgot your password?</a>
+      </div>
     </form>
   );
 }

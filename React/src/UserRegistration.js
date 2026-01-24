@@ -43,13 +43,17 @@ function UserRegistration() {
   };
 
   return (
-    <form className="row g-2" onSubmit={handleSubmit}>
+    <form className="registration-form" onSubmit={handleSubmit}>
       <div className="form-group">
+        <label htmlFor="name" className="form-label">
+          Full Name
+        </label>
         <input
           autoComplete="off"
           type="text"
           pattern="[a-zA-Z ]+"
           className="form-control"
+          id="name"
           name="name"
           value={formData.name}
           onChange={handleChange}
@@ -58,11 +62,15 @@ function UserRegistration() {
         />
       </div>
       <div className="form-group">
+        <label htmlFor="email" className="form-label">
+          Email Address
+        </label>
         <input
           autoComplete="off"
           type="email"
           pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
           className="form-control"
+          id="email"
           name="email"
           value={formData.email}
           onChange={handleChange}
@@ -71,32 +79,48 @@ function UserRegistration() {
         />
       </div>
       <div className="form-group">
+        <label htmlFor="password" className="form-label">
+          Password
+        </label>
         <input
           autoComplete="off"
           type="password"
           className="form-control"
+          id="password"
           name="password"
           value={formData.password}
           onChange={handleChange}
           required
           minLength="8"
-          placeholder="Choose a strong password (minimum 8 characters)"
+          placeholder="Choose a password"
         />
+        <div className="password-hint">Minimum 8 characters</div>
       </div>
-      <div id="error-message" className="error" aria-live="polite">
-        {errorMessage}
-      </div>
-      <button type="submit" className="btn btn-secondary">
-        Register
-        <span
-          className="spinner-border spinner-border-sm"
-          role="status"
-          aria-hidden="true"
-          id="spinnerRegister"
-          style={{ display: loading ? "inline-block" : "none" }}
-        ></span>
+
+      {errorMessage && (
+        <div className="error-message">
+          <i className="bi bi-exclamation-triangle me-1"></i>
+          {errorMessage}
+        </div>
+      )}
+
+      <button type="submit" className="btn-register mt-3" disabled={loading}>
+        {loading ? (
+          <>
+            <span
+              className="spinner-border spinner-border-sm me-2"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            Registering...
+          </>
+        ) : (
+          <>
+            <i className="bi bi-person-plus me-2"></i>
+            Register Account
+          </>
+        )}
       </button>
-      <div id="registerPlaceholder"></div>
     </form>
   );
 }

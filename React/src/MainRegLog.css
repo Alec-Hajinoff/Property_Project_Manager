@@ -1,21 +1,31 @@
-input:valid {
-  background-color: ivory;
-  border: none;
-  outline: 2px solid deepskyblue;
-  border-radius: 5px;
-  accent-color: gold;
+.main-reglog-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+  padding: 2rem 1rem;
 }
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 18px;
+.content-wrapper {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  min-height: 600px;
 }
 
-.footer {
-  background-color: rgb(236, 230, 230);
-  border-radius: 7px;
+.sidebar {
+  background-color: #f8f9fa;
+  padding: 2rem;
+  border-left: 1px solid #e9ecef;
+  height: 100%;
 }
 
-#logo {
-  height: 150px;
+@media (max-width: 768px) {
+  .main-reglog-container {
+    padding: 1rem;
+  }
+
+  .sidebar {
+    border-left: none;
+    border-top: 1px solid #e9ecef;
+  }
 }
