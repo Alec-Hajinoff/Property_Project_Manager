@@ -4,8 +4,8 @@ import "./ExistingRecords.css";
 function ExistingRecords({ records }) {
   if (!records || records.length === 0) {
     return (
-      <div className="text-center py-3">
-        <small className="text-muted">No records yet</small>
+      <div className="empty-records">
+        <small>No records yet</small>
       </div>
     );
   }
@@ -74,111 +74,92 @@ function ExistingRecords({ records }) {
   };
 
   return (
-    <div className="existing-records mt-3">
-      <h6 className="mb-2">Project Timeline</h6>
+    <div className="existing-records">
       <div className="records-timeline">
         {records.map((record) => (
-          <div key={record.id} className="record-item mb-2">
-            <div className="card">
-              <div className="card-body p-2">
-                <div className="d-flex justify-content-between align-items-start">
-                  <div style={{ flex: 1 }}>
-                    <div className="d-flex align-items-center gap-2 mb-1">
-                      <span className="badge bg-info">
-                        {record.record_type}
-                      </span>
-                      <small className="text-muted">
-                        {formatDate(record.record_datetime)}
-                      </small>
-                    </div>
-                    <h6 className="mb-1">{record.title}</h6>
-                    {record.details && (
-                      <p className="mb-2 small text-muted">{record.details}</p>
-                    )}
+          <div key={record.id} className="record-item">
+            <div className="record-card">
+              <div className="record-header">
+                <span className="record-type-badge">{record.record_type}</span>
+                <span className="record-date">
+                  {formatDate(record.record_datetime)}
+                </span>
+              </div>
 
-                    {record.attachments && record.attachments.length > 0 && (
-                      <div className="attachments-section mt-2">
-                        <div className="d-flex align-items-center mb-1">
-                          <small className="text-muted fw-medium">
-                            Attachments:
-                          </small>
-                        </div>
-                        <div className="attachments-list">
-                          {record.attachments.map((attachment, index) => (
-                            <div
-                              key={`attachment-${record.id}-${
-                                attachment.id || index
-                              }`}
-                              className="attachment-item d-flex align-items-center mb-1"
-                            >
-                              <button
-                                className="btn btn-link btn-sm p-0 text-decoration-none text-start"
-                                onClick={() => openAttachment(attachment)}
-                                title={`Click to view ${attachment.file_name}`}
-                                style={{ cursor: "pointer" }}
-                              >
-                                <span className="me-1">
-                                  {getFileIcon(attachment.file_type)}
-                                </span>
-                                <small className="text-primary">
-                                  {attachment.file_name}
-                                </small>
-                                <small className="text-muted ms-2">
-                                  ({attachment.file_type})
-                                </small>
-                                {attachment.uploaded_at && (
-                                  <small className="text-muted ms-2">
-                                    • {formatDate(attachment.uploaded_at)}
-                                  </small>
-                                )}
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+              <h6 className="record-title">{record.title}</h6>
 
-                    {record.parties && record.parties.length > 0 && (
-                      <div className="parties-section mt-2">
-                        <div className="parties-list">
-                          {record.parties.map((party, index) => (
-                            <div
-                              key={`${record.id}-${party.id || index}`}
-                              className="party-item mb-1"
-                            >
-                              <div className="d-flex align-items-start">
-                                <div className="flex-grow-1">
-                                  <small className="text-primary fw-medium">
-                                    {formatPartyInfo(party)}
-                                  </small>
-                                  {party.notes && (
-                                    <div className="party-notes">
-                                      <small className="text-muted d-block">
-                                        {party.notes}
-                                      </small>
-                                    </div>
-                                  )}
-                                  <div className="party-meta d-flex gap-2">
-                                    {party.created_at && (
-                                      <small className="text-muted">
-                                        Party created:{" "}
-                                        {formatDate(party.created_at)}
-                                      </small>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                              {index < record.parties.length - 1 && (
-                                <hr className="my-1" />
-                              )}
-                            </div>
-                          ))}
-                        </div>
+              {record.details && (
+                <p className="record-details">{record.details}</p>
+              )}
+
+              {record.attachments && record.attachments.length > 0 && (
+                <div className="nested-section">
+                  <div className="section-title">
+                    <i className="bi bi-paperclip"></i>
+                    Attachments
+                  </div>
+                  <div className="attachments-list">
+                    {record.attachments.map((attachment, index) => (
+                      <div
+                        key={`attachment-${record.id}-${
+                          attachment.id || index
+                        }`}
+                        className="attachment-item"
+                      >
+                        <button
+                          className="attachment-link"
+                          onClick={() => openAttachment(attachment)}
+                          title={`Click to view ${attachment.file_name}`}
+                        >
+                          <span className="file-icon">
+                            {getFileIcon(attachment.file_type)}
+                          </span>
+                          <span>
+                            {attachment.file_name}
+                            <small className="text-muted ms-1">
+                              ({attachment.file_type})
+                            </small>
+                          </span>
+                        </button>
+                        {attachment.uploaded_at && (
+                          <div className="party-meta">
+                            Uploaded: {formatDate(attachment.uploaded_at)}
+                          </div>
+                        )}
                       </div>
-                    )}
+                    ))}
                   </div>
                 </div>
-              </div>
+              )}
+
+              {record.parties && record.parties.length > 0 && (
+                <div className="nested-section">
+                  <div className="section-title">
+                    <i className="bi bi-people"></i>
+                    Related Parties
+                  </div>
+                  <div className="parties-list">
+                    {record.parties.map((party, index) => (
+                      <div
+                        key={`${record.id}-${party.id || index}`}
+                        className="party-item"
+                      >
+                        <div className="party-info">
+                          {formatPartyInfo(party)}
+                        </div>
+                        {party.notes && (
+                          <div className="party-notes">{party.notes}</div>
+                        )}
+                        {party.created_at && (
+                          <div className="party-meta">
+                            Added: {formatDate(party.created_at)}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}

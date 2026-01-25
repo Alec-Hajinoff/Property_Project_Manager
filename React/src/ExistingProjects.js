@@ -54,14 +54,12 @@ function ExistingProjects() {
 
   if (isLoading) {
     return (
-      <div className="row justify-content-center mt-5">
-        <div className="col-md-8">
-          <div className="text-center">
-            <div className="spinner-border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-            <p className="mt-2">Loading projects...</p>
+      <div className="loading-container">
+        <div className="text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
           </div>
+          <p className="mt-2 text-muted">Loading projects...</p>
         </div>
       </div>
     );
@@ -69,104 +67,112 @@ function ExistingProjects() {
 
   if (error) {
     return (
-      <div className="row justify-content-center mt-5">
-        <div className="col-md-8">
-          <div className="alert alert-danger" role="alert">
-            {error}
-          </div>
-          <button className="btn btn-primary" onClick={() => loadProjects()}>
-            Retry
-          </button>
+      <div className="error-container">
+        <div className="error-alert" role="alert">
+          {error}
         </div>
+        <button className="btn-refresh" onClick={() => loadProjects()}>
+          Retry
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="row justify-content-center mt-5">
-      <div className="col-md-8">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h3>Your Projects</h3>
-          <button
-            className="btn btn-outline-primary btn-sm"
-            onClick={() => loadProjects(true)}
-            disabled={isRefreshing}
-          >
-            {isRefreshing ? (
-              <>
-                <span
-                  className="spinner-border spinner-border-sm me-1"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-                Refreshing...
-              </>
-            ) : (
-              "Refresh"
-            )}
-          </button>
-        </div>
-
-        {projects.length === 0 ? (
-          <div className="card">
-            <div className="card-body text-center">
-              <p className="mb-0">There are currently no projects</p>
-            </div>
-          </div>
-        ) : (
-          <div className="projects-list">
-            {projects.map((project, index) => {
-              const isExpanded = expandedProjects.has(index);
-
-              return (
-                <div key={index} className="card mb-3">
-                  <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-start">
-                      <div style={{ flex: 1 }}>
-                        <h5 className="card-title mb-0">
-                          {project.project_address}
-                        </h5>
-
-                        {isExpanded && (
-                          <div className="mt-3">
-                            <div className="d-flex gap-3">
-                              <span className="badge bg-secondary">
-                                {project.status}
-                              </span>
-                              <small className="text-muted">
-                                Created:{" "}
-                                {new Date(
-                                  project.created_at,
-                                ).toLocaleDateString()}
-                              </small>
-                            </div>
-
-                            <Records
-                              projectId={project.id}
-                              builderId={project.builder_id}
-                            />
-
-                            <ExistingRecords records={project.records || []} />
-                          </div>
-                        )}
-                      </div>
-
-                      <button
-                        className="btn btn-outline-secondary btn-sm ms-3"
-                        onClick={() => toggleProjectExpansion(index)}
-                        aria-expanded={isExpanded}
-                        aria-controls={`project-details-${index}`}
-                      >
-                        {isExpanded ? "Hide details" : "Show details"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+    <div className="projects-container">
+      <div className="projects-header">
+        <h2 className="projects-title">Your Projects</h2>
+        <button
+          className="btn-refresh"
+          onClick={() => loadProjects(true)}
+          disabled={isRefreshing}
+        >
+          {isRefreshing ? (
+            <>
+              <span
+                className="spinner-border spinner-border-sm me-1"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              Refreshing...
+            </>
+          ) : (
+            "Refresh"
+          )}
+        </button>
       </div>
+
+      {projects.length === 0 ? (
+        <div className="no-projects-card">
+          <p className="no-projects-text">There are currently no projects</p>
+        </div>
+      ) : (
+        <div className="projects-list">
+          {projects.map((project, index) => {
+            const isExpanded = expandedProjects.has(index);
+
+            return (
+              <div key={index} className="project-card">
+                <div
+                  className="project-card-header"
+                  onClick={() => toggleProjectExpansion(index)}
+                >
+                  <div className="project-title">
+                    {project.project_address}
+                    <span className="project-badge">{project.status}</span>
+                  </div>
+                  <button
+                    className="btn-show-details"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleProjectExpansion(index);
+                    }}
+                    aria-expanded={isExpanded}
+                    aria-controls={`project-details-${index}`}
+                  >
+                    {isExpanded ? "Hide details" : "Show details"}
+                  </button>
+                </div>
+
+                {isExpanded && (
+                  <div className="project-details">
+                    <div className="project-meta">
+                      <div className="meta-item">
+                        <i className="bi bi-calendar"></i>
+                        <span>
+                          Created:{" "}
+                          {new Date(project.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="meta-item">
+                        <i className="bi bi-building"></i>
+                        <span>Project ID: {project.id}</span>
+                      </div>
+                    </div>
+
+                    <Records
+                      projectId={project.id}
+                      builderId={project.builder_id}
+                    />
+
+                    {project.records && project.records.length > 0 && (
+                      <div className="timeline-container">
+                        <h3 className="timeline-title">
+                          <i className="bi bi-clock-history"></i>
+                          Project Timeline
+                        </h3>
+                        <div className="timeline">
+                          <ExistingRecords records={project.records || []} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -6,18 +6,26 @@ import ExistingProjects from "./ExistingProjects";
 
 function UserAccountWelcome() {
   return (
-    <div className="container">
-      <div className="d-flex justify-content-end mb-3">
-        <LogoutComponent />
+    <div className="dashboard-container">
+      <div className="dashboard-content">
+        <div className="dashboard-header">
+          <h1 className="dashboard-title">Property Project Manager</h1>
+          <LogoutComponent />
+        </div>
+
+        <div className="dashboard-welcome">
+          <h2 className="welcome-heading">Welcome to your dashboard</h2>
+          <p className="welcome-subheading">
+            Manage your building projects, track progress, and maintain
+            defensible records
+          </p>
+        </div>
+
+        <div className="components-container">
+          <CreateProject />
+          <ExistingProjects />
+        </div>
       </div>
-
-      <div className="text-center mt-5">
-        <h1>Welcome to your dashboard</h1>
-      </div>
-
-      <CreateProject />
-
-      <ExistingProjects />
     </div>
   );
 }

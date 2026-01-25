@@ -1,32 +1,216 @@
-/* Record item styling */
-.record-item .card {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.existing-records {
+  width: 100%;
+}
+
+.records-timeline {
+  position: relative;
+}
+
+.record-item {
+  position: relative;
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.record-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #3498db;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px #3498db;
+  z-index: 2;
+}
+
+.record-item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 22px;
+  bottom: -1rem;
+  width: 2px;
+  background-color: #3498db;
+  opacity: 0.3;
+  z-index: 1;
+}
+
+.record-card {
+  background-color: white;
   border: 1px solid #e9ecef;
   border-radius: 6px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
-.record-item .card-body {
-  padding: 0.75rem;
+.record-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  border-color: #3498db;
 }
 
-/* Badge styling */
-.badge {
-  font-size: 0.7rem;
-  padding: 0.2rem 0.4rem;
+.record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
 }
 
-/* Timeline heading */
-h6 {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #495057;
+.record-type-badge {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
-/* Small text styling */
-.small {
+.record-date {
+  color: #7f8c8d;
   font-size: 0.8rem;
 }
 
-.text-muted {
-  color: #6c757d !important;
+.record-title {
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.record-details {
+  color: #5d6d7e;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.nested-section {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed #e9ecef;
+  position: relative;
+}
+
+.nested-section::before {
+  content: "";
+  position: absolute;
+  left: -1.5rem;
+  top: 0;
+  width: 1rem;
+  height: 1px;
+  background-color: #3498db;
+  opacity: 0.5;
+}
+
+.section-title {
+  color: #5d6d7e;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.attachments-list,
+.parties-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.attachment-item,
+.party-item {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  position: relative;
+}
+
+.attachment-item::before,
+.party-item::before {
+  content: "";
+  position: absolute;
+  left: -1rem;
+  top: 50%;
+  width: 0.75rem;
+  height: 1px;
+  background-color: #3498db;
+  opacity: 0.3;
+}
+
+.attachment-link {
+  color: #3498db;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.attachment-link:hover {
+  text-decoration: underline;
+  color: #2980b9;
+}
+
+.file-icon {
+  font-size: 0.9rem;
+}
+
+.party-info {
+  color: #2c3e50;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.party-notes {
+  color: #7f8c8d;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+.party-meta {
+  color: #95a5a6;
+  font-size: 0.7rem;
+  margin-top: 0.25rem;
+}
+
+.empty-records {
+  text-align: center;
+  padding: 1.5rem;
+  color: #95a5a6;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .record-item {
+    padding-left: 1rem;
+  }
+
+  .record-item::before {
+    left: -0.25rem;
+    width: 8px;
+    height: 8px;
+  }
+
+  .record-item:not(:last-child)::after {
+    left: -0.21rem;
+  }
+
+  .nested-section::before {
+    left: -1rem;
+    width: 0.75rem;
+  }
+
+  .attachment-item::before,
+  .party-item::before {
+    left: -0.75rem;
+    width: 0.5rem;
+  }
 }

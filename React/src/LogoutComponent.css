@@ -1,21 +1,25 @@
-input:valid {
-  background-color: ivory;
+.logout-button {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
   border: none;
-  outline: 2px solid deepskyblue;
-  border-radius: 5px;
-  accent-color: gold;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
 }
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 18px;
+.logout-button:hover {
+  background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.footer {
-  background-color: rgb(236, 230, 230);
-  border-radius: 7px;
+.logout-button:active {
+  transform: translateY(0);
 }
 
-#logo {
-  height: 150px;
+.logout-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.25);
 }
