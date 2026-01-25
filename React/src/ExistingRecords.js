@@ -92,6 +92,35 @@ function ExistingRecords({ records }) {
                 <p className="record-details">{record.details}</p>
               )}
 
+              {record.parties && record.parties.length > 0 && (
+                <div className="nested-section">
+                  <div className="section-title">
+                    <i className="bi bi-people"></i>
+                    Related Parties
+                  </div>
+                  <div className="parties-list">
+                    {record.parties.map((party, index) => (
+                      <div
+                        key={`${record.id}-${party.id || index}`}
+                        className="party-item"
+                      >
+                        <div className="party-info">
+                          {formatPartyInfo(party)}
+                        </div>
+                        {party.notes && (
+                          <div className="party-notes">{party.notes}</div>
+                        )}
+                        {party.created_at && (
+                          <div className="party-meta">
+                            Added: {formatDate(party.created_at)}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {record.attachments && record.attachments.length > 0 && (
                 <div className="nested-section">
                   <div className="section-title">
@@ -124,35 +153,6 @@ function ExistingRecords({ records }) {
                         {attachment.uploaded_at && (
                           <div className="party-meta">
                             Uploaded: {formatDate(attachment.uploaded_at)}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {record.parties && record.parties.length > 0 && (
-                <div className="nested-section">
-                  <div className="section-title">
-                    <i className="bi bi-people"></i>
-                    Related Parties
-                  </div>
-                  <div className="parties-list">
-                    {record.parties.map((party, index) => (
-                      <div
-                        key={`${record.id}-${party.id || index}`}
-                        className="party-item"
-                      >
-                        <div className="party-info">
-                          {formatPartyInfo(party)}
-                        </div>
-                        {party.notes && (
-                          <div className="party-notes">{party.notes}</div>
-                        )}
-                        {party.created_at && (
-                          <div className="party-meta">
-                            Added: {formatDate(party.created_at)}
                           </div>
                         )}
                       </div>
