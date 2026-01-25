@@ -9,7 +9,6 @@ function UserAccountWelcome() {
     <div className="dashboard-container">
       <div className="dashboard-content">
         <div className="dashboard-header">
-          <h1 className="dashboard-title">Property Project Manager</h1>
           <LogoutComponent />
         </div>
 

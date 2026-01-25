@@ -11,18 +11,9 @@
 
 .dashboard-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #e9ecef;
-}
-
-.dashboard-title {
-  color: #2c3e50;
-  font-weight: 700;
-  margin: 0;
-  font-size: 1.8rem;
 }
 
 .dashboard-welcome {
@@ -54,12 +45,6 @@
 @media (max-width: 768px) {
   .dashboard-container {
     padding: 1rem;
-  }
-
-  .dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
   }
 
   .dashboard-welcome {

@@ -1,5 +1,5 @@
 .logout-button {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
   border: none;
   color: white;
   padding: 0.5rem 1.5rem;
@@ -10,7 +10,7 @@
 }
 
 .logout-button:hover {
-  background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+  background: linear-gradient(135deg, #2980b9 0%, #1c5a7a 100%);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -21,5 +21,5 @@
 
 .logout-button:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.25);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
 }
