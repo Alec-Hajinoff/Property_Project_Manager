@@ -38,6 +38,11 @@ function CreateProject() {
 
       setSuccessMessage("Your project is saved");
 
+      setFormData({
+        project_address: "",
+        status: "Enquiry",
+      });
+
       setTimeout(() => {
         setSuccessMessage("");
       }, 3000);
@@ -53,7 +58,15 @@ function CreateProject() {
   };
 
   const toggleFormVisibility = () => {
-    setIsFormVisible(!isFormVisible);
+    const willBeVisible = !isFormVisible;
+    setIsFormVisible(willBeVisible);
+
+    if (!willBeVisible) {
+      setFormData({
+        project_address: "",
+        status: "Enquiry",
+      });
+    }
 
     setErrorMessage("");
     setSuccessMessage("");
