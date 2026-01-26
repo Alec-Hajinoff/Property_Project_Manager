@@ -82,14 +82,25 @@ function ExistingRecords({ records }) {
               <div className="record-header">
                 <span className="record-type-badge">{record.record_type}</span>
                 <span className="record-date">
-                  {formatDate(record.record_datetime)}
+                  Record created: {formatDate(record.record_datetime)}
                 </span>
               </div>
 
-              <h6 className="record-title">{record.title}</h6>
+              <div className="record-field">
+                <span className="value-label">Record Type:</span>
+                <span className="value-content">{record.record_type}</span>
+              </div>
+
+              <div className="record-field">
+                <span className="value-label">Short Description:</span>
+                <span className="value-content">{record.title}</span>
+              </div>
 
               {record.details && (
-                <p className="record-details">{record.details}</p>
+                <div className="record-field">
+                  <span className="value-label">Detailed Notes:</span>
+                  <span className="value-content">{record.details}</span>
+                </div>
               )}
 
               {record.parties && record.parties.length > 0 && (
@@ -104,15 +115,24 @@ function ExistingRecords({ records }) {
                         key={`${record.id}-${party.id || index}`}
                         className="party-item"
                       >
-                        <div className="party-info">
-                          {formatPartyInfo(party)}
+                        <div className="party-field">
+                          <span className="nested-label">Party:</span>
+                          <span className="nested-value">
+                            {formatPartyInfo(party)}
+                          </span>
                         </div>
                         {party.notes && (
-                          <div className="party-notes">{party.notes}</div>
+                          <div className="party-field">
+                            <span className="nested-label">Notes:</span>
+                            <span className="nested-value">{party.notes}</span>
+                          </div>
                         )}
                         {party.created_at && (
-                          <div className="party-meta">
-                            Added: {formatDate(party.created_at)}
+                          <div className="party-field">
+                            <span className="nested-label">Added:</span>
+                            <span className="nested-value">
+                              {formatDate(party.created_at)}
+                            </span>
                           </div>
                         )}
                       </div>
@@ -135,24 +155,31 @@ function ExistingRecords({ records }) {
                         }`}
                         className="attachment-item"
                       >
-                        <button
-                          className="attachment-link"
-                          onClick={() => openAttachment(attachment)}
-                          title={`Click to view ${attachment.file_name}`}
-                        >
-                          <span className="file-icon">
-                            {getFileIcon(attachment.file_type)}
-                          </span>
-                          <span>
+                        <div className="attachment-field">
+                          <span className="nested-label">File:</span>
+                          <button
+                            className="attachment-link nested-value"
+                            onClick={() => openAttachment(attachment)}
+                            title={`Click to view ${attachment.file_name}`}
+                          >
+                            <span className="file-icon">
+                              {getFileIcon(attachment.file_type)}
+                            </span>
                             {attachment.file_name}
-                            <small className="text-muted ms-1">
-                              ({attachment.file_type})
-                            </small>
+                          </button>
+                        </div>
+                        <div className="attachment-field">
+                          <span className="nested-label">Type:</span>
+                          <span className="nested-value">
+                            {attachment.file_type}
                           </span>
-                        </button>
+                        </div>
                         {attachment.uploaded_at && (
-                          <div className="party-meta">
-                            Uploaded: {formatDate(attachment.uploaded_at)}
+                          <div className="attachment-field">
+                            <span className="nested-label">Uploaded:</span>
+                            <span className="nested-value">
+                              {formatDate(attachment.uploaded_at)}
+                            </span>
                           </div>
                         )}
                       </div>

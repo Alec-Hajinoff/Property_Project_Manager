@@ -87,6 +87,28 @@
   margin-bottom: 0.75rem;
 }
 
+.value-label {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-right: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.value-content {
+  color: #5d6d7e;
+  font-size: 0.85rem;
+}
+
+.record-field {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+}
+
+.record-field:last-child {
+  margin-bottom: 0;
+}
+
 .nested-section {
   margin-top: 0.75rem;
   padding-top: 0.75rem;
@@ -188,6 +210,32 @@
   font-size: 0.9rem;
 }
 
+.attachment-field,
+.party-field {
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: flex-start;
+}
+
+.attachment-field:last-child,
+.party-field:last-child {
+  margin-bottom: 0;
+}
+
+.nested-label {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-right: 0.5rem;
+  font-size: 0.75rem;
+  min-width: 40px;
+}
+
+.nested-value {
+  color: #5d6d7e;
+  font-size: 0.75rem;
+  flex: 1;
+}
+
 @media (max-width: 768px) {
   .record-item {
     padding-left: 1rem;
@@ -212,5 +260,27 @@
   .party-item::before {
     left: -0.75rem;
     width: 0.5rem;
+  }
+
+  .record-field {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .value-label {
+    margin-right: 0;
+    margin-bottom: 0.25rem;
+  }
+
+  .attachment-field,
+  .party-field {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nested-label {
+    margin-right: 0;
+    margin-bottom: 0.125rem;
+    min-width: auto;
   }
 }
