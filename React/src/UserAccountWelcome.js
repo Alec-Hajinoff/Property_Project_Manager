@@ -13,7 +13,7 @@ function UserAccountWelcome() {
         </div>
 
         <div className="dashboard-welcome">
-          <h2 className="welcome-heading">Welcome to your dashboard</h2>
+          <h3 className="welcome-heading">Welcome to your dashboard</h3>
           <p className="welcome-subheading">
             Manage your building projects, track progress, and maintain
             defensible records

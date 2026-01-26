@@ -81,7 +81,7 @@ function ExistingProjects() {
   return (
     <div className="projects-container">
       <div className="projects-header">
-        <h2 className="projects-title">Your Projects</h2>
+        <h3 className="projects-title">Your existing projects</h3>
         <button
           className="btn-refresh"
           onClick={() => loadProjects(true)}
