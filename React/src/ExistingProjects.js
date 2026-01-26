@@ -140,7 +140,7 @@ function ExistingProjects() {
                       <div className="meta-item">
                         <i className="bi bi-calendar"></i>
                         <span>
-                          Created:{" "}
+                          Project created:{" "}
                           {new Date(project.created_at).toLocaleDateString()}
                         </span>
                       </div>
