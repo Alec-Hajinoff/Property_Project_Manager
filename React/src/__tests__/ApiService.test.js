@@ -1,334 +1,193 @@
 import {
   registerUser,
   loginUser,
-  pullReadingsFunction,
   logoutUser,
-  pullHistory,
+  createProject,
+  existingProjects,
+  createRecord,
 } from "../ApiService";
-
-import {
-  setAlertThresholds,
-  getAlertThresholds,
-  deleteAlertThresholds,
-} from "../ApiService";
-
-global.fetch = jest.fn();
 
 beforeEach(() => {
-  fetch.mockClear();
+  global.fetch = jest.fn();
 });
 
-describe("API functions", () => {
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
+describe("ApiService", () => {
   describe("registerUser", () => {
-    it("should successfully register a user", async () => {
-      const mockResponse = { success: true, message: "User registered" };
-      fetch.mockResolvedValueOnce({
+    it("sends POST request and returns data", async () => {
+      const mockResponse = { success: true };
+      global.fetch.mockResolvedValue({
+        ok: true,
         json: () => Promise.resolve(mockResponse),
       });
 
-      const formData = { username: "test", password: "test123" };
-      const result = await registerUser(formData);
+      const result = await registerUser({ name: "Alec" });
 
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:8001/Readings_From_Sensors/form_capture.php",
-        {
+      expect(global.fetch).toHaveBeenCalledWith(
+        "http://localhost:8001/Property_Project_Manager/form_capture.php",
+        expect.objectContaining({
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
+          headers: { "Content-Type": "application/json" },
           credentials: "include",
-        }
+          body: JSON.stringify({ name: "Alec" }),
+        }),
       );
+
       expect(result).toEqual(mockResponse);
-    });
-
-    it("should handle registration errors", async () => {
-      fetch.mockRejectedValueOnce(new Error("Network error"));
-
-      const formData = { username: "test", password: "test123" };
-      await expect(registerUser(formData)).rejects.toThrow(
-        "An error occurred."
-      );
     });
   });
 
   describe("loginUser", () => {
-    it("should successfully login a user", async () => {
-      const mockResponse = { success: true, message: "Login successful" };
-      fetch.mockResolvedValueOnce({
+    it("sends POST request and returns data", async () => {
+      const mockResponse = { success: true };
+      global.fetch.mockResolvedValue({
+        ok: true,
         json: () => Promise.resolve(mockResponse),
       });
 
-      const formData = { username: "test", password: "test123" };
-      const result = await loginUser(formData);
+      const result = await loginUser({ email: "test@test.com" });
 
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:8001/Readings_From_Sensors/login_capture.php",
-        {
+      expect(global.fetch).toHaveBeenCalledWith(
+        "http://localhost:8001/Property_Project_Manager/login_capture.php",
+        expect.objectContaining({
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify(formData),
-        }
+          body: JSON.stringify({ email: "test@test.com" }),
+        }),
       );
+
       expect(result).toEqual(mockResponse);
-    });
-
-    it("should handle login errors", async () => {
-      fetch.mockRejectedValueOnce(new Error("Network error"));
-
-      const formData = { username: "test", password: "test123" };
-      await expect(loginUser(formData)).rejects.toThrow("An error occurred.");
-    });
-  });
-
-  describe("pullReadingsFunction", () => {
-    it("should successfully fetch sensor readings", async () => {
-      const mockData = { readings: [] };
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockData),
-      });
-
-      const result = await pullReadingsFunction();
-
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:8001/Readings_From_Sensors/pull_readings.php",
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
-      expect(result).toEqual(mockData);
-    });
-
-    it("should handle failed requests", async () => {
-      fetch.mockResolvedValueOnce({ ok: false });
-
-      await expect(pullReadingsFunction()).rejects.toThrow("Request failed");
-    });
-
-    it("should handle network errors", async () => {
-      fetch.mockRejectedValueOnce(new Error("Network error"));
-
-      await expect(pullReadingsFunction()).rejects.toThrow(
-        "Failed to fetch agreement: Network error"
-      );
     });
   });
 
   describe("logoutUser", () => {
-    it("should successfully logout a user", async () => {
-      fetch.mockResolvedValueOnce({ ok: true });
+    it("sends POST request and resolves on success", async () => {
+      global.fetch.mockResolvedValue({ ok: true });
 
-      await logoutUser();
+      await expect(logoutUser()).resolves.not.toThrow();
 
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:8001/Readings_From_Sensors/logout_component.php",
-        {
+      expect(global.fetch).toHaveBeenCalledWith(
+        "http://localhost:8001/Property_Project_Manager/logout_component.php",
+        expect.objectContaining({
           method: "POST",
           credentials: "include",
-        }
+        }),
       );
     });
 
-    it("should handle logout failures", async () => {
-      fetch.mockResolvedValueOnce({ ok: false });
+    it("throws on failure", async () => {
+      global.fetch.mockResolvedValue({ ok: false });
 
       await expect(logoutUser()).rejects.toThrow(
-        "An error occurred during logout."
+        "An error occurred during logout.",
       );
     });
   });
 
-  describe("pullHistory", () => {
-    it("should successfully fetch history", async () => {
-      const mockPayload = {
-        success: true,
-        message: "History fetched successfully",
-        data: [],
-      };
-      fetch.mockResolvedValueOnce({
+  describe("createProject", () => {
+    it("sends POST request and returns data", async () => {
+      const mockResponse = { success: true };
+      global.fetch.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve(mockPayload),
+        json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await pullHistory();
+      const result = await createProject({ title: "New Project" });
 
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:8001/Readings_From_Sensors/pull_history.php",
-        {
-          method: "GET",
+      expect(global.fetch).toHaveBeenCalledWith(
+        "http://localhost:8001/Property_Project_Manager/create_project.php",
+        expect.objectContaining({
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           credentials: "include",
-        }
+          body: JSON.stringify({ title: "New Project" }),
+        }),
       );
-      expect(result).toEqual(mockPayload);
+
+      expect(result).toEqual(mockResponse);
     });
 
-    it("should handle failed history requests", async () => {
-      const mockPayload = {
-        success: false,
-        message: "Error fetching history",
-      };
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockPayload),
+    it("throws when backend returns error", async () => {
+      const mockResponse = { success: false, message: "Failed" };
+      global.fetch.mockResolvedValue({
+        ok: false,
+        json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await pullHistory();
-
-      expect(result).toEqual({
-        success: false,
-        message: "Error fetching history",
-        data: [],
-      });
-    });
-
-    it("should handle network errors", async () => {
-      fetch.mockRejectedValueOnce(new Error("Network error"));
-
-      const result = await pullHistory();
-
-      expect(result).toEqual({
-        success: false,
-        message: "Network error",
-        data: [],
-      });
+      await expect(createProject({})).rejects.toThrow("Failed");
     });
   });
 
-  describe("Alert threshold API functions", () => {
-    describe("setAlertThresholds", () => {
-      it("should successfully set alert thresholds", async () => {
-        const mockResponse = { success: true, message: "Thresholds saved" };
-        fetch.mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockResponse),
-        });
-
-        const thresholdData = {
-          maxTemp: "30",
-          minTemp: "5",
-          maxHumidity: "80",
-          minHumidity: "20",
-        };
-
-        const result = await setAlertThresholds(thresholdData);
-
-        expect(fetch).toHaveBeenCalledWith(
-          "http://localhost:8001/Readings_From_Sensors/set_alerts.php",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify(thresholdData),
-          }
-        );
-        expect(result).toEqual(mockResponse);
+  describe("existingProjects", () => {
+    it("fetches projects successfully", async () => {
+      const mockResponse = { success: true, projects: [] };
+      global.fetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
       });
 
-      it("should handle setAlertThresholds failure", async () => {
-        fetch.mockResolvedValueOnce({ ok: false });
+      const result = await existingProjects();
 
-        await expect(setAlertThresholds({ maxTemp: "30" })).rejects.toThrow(
-          "Failed to set alert thresholds"
-        );
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        "http://localhost:8001/Property_Project_Manager/existing_projects.php",
+        expect.objectContaining({
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        }),
+      );
 
-      it("should handle network error during setAlertThresholds", async () => {
-        fetch.mockRejectedValueOnce(new Error("Network error"));
-
-        await expect(setAlertThresholds({ maxTemp: "30" })).rejects.toThrow(
-          "Failed to set alert thresholds"
-        );
-      });
+      expect(result).toEqual(mockResponse);
     });
 
-    describe("getAlertThresholds", () => {
-      it("should successfully fetch alert thresholds", async () => {
-        const mockData = {
-          success: true,
-          data: {
-            maxTemp: "30",
-            minTemp: "5",
-            maxHumidity: "80",
-            minHumidity: "20",
-          },
-        };
-        fetch.mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockData),
-        });
-
-        const result = await getAlertThresholds();
-
-        expect(fetch).toHaveBeenCalledWith(
-          "http://localhost:8001/Readings_From_Sensors/get_alerts.php",
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-        expect(result).toEqual(mockData);
+    it("throws when backend returns failure", async () => {
+      const mockResponse = { success: false, message: "Error" };
+      global.fetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
       });
 
-      it("should handle getAlertThresholds failure", async () => {
-        fetch.mockResolvedValueOnce({ ok: false });
+      await expect(existingProjects()).rejects.toThrow("Error");
+    });
+  });
 
-        await expect(getAlertThresholds()).rejects.toThrow(
-          "Failed to fetch alert thresholds"
-        );
+  describe("createRecord", () => {
+    it("sends POST request with FormData and returns data", async () => {
+      const mockResponse = { success: true };
+      global.fetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
       });
 
-      it("should handle network error during getAlertThresholds", async () => {
-        fetch.mockRejectedValueOnce(new Error("Network error"));
+      const formData = new FormData();
+      formData.append("file", "test");
 
-        await expect(getAlertThresholds()).rejects.toThrow(
-          "Failed to fetch alert thresholds"
-        );
-      });
+      const result = await createRecord(formData);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "http://localhost:8001/Property_Project_Manager/create_record.php",
+        expect.objectContaining({
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        }),
+      );
+
+      expect(result).toEqual(mockResponse);
     });
 
-    describe("deleteAlertThresholds", () => {
-      it("should successfully delete alert thresholds", async () => {
-        const mockResponse = { success: true, message: "Thresholds deleted" };
-        fetch.mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockResponse),
-        });
-
-        const result = await deleteAlertThresholds();
-
-        expect(fetch).toHaveBeenCalledWith(
-          "http://localhost:8001/Readings_From_Sensors/delete_alerts.php",
-          {
-            method: "DELETE",
-            credentials: "include",
-          }
-        );
-        expect(result).toEqual(mockResponse);
+    it("throws when backend returns failure", async () => {
+      const mockResponse = { success: false, message: "Failed" };
+      global.fetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
       });
 
-      it("should handle deleteAlertThresholds failure", async () => {
-        fetch.mockResolvedValueOnce({ ok: false });
-
-        await expect(deleteAlertThresholds()).rejects.toThrow(
-          "Failed to delete alert thresholds"
-        );
-      });
-
-      it("should handle network error during deleteAlertThresholds", async () => {
-        fetch.mockRejectedValueOnce(new Error("Network error"));
-
-        await expect(deleteAlertThresholds()).rejects.toThrow(
-          "Failed to delete alert thresholds"
-        );
-      });
+      await expect(createRecord(new FormData())).rejects.toThrow("Failed");
     });
   });
 });

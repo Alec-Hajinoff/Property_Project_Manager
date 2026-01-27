@@ -1,34 +1,66 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
 import RegisteredPage from "../RegisteredPage";
+import UserLogin from "../UserLogin";
 
 jest.mock("../UserLogin", () => () => (
-  <div data-testid="user-login">UserLogin Component</div>
+  <div data-testid="user-login-mock">UserLogin</div>
 ));
 
-describe("RegisteredPage component", () => {
-  it("renders the registration confirmation message", () => {
-    render(<RegisteredPage />);
+describe("RegisteredPage", () => {
+  test("renders thank you message for registration", () => {
+    render(
+      <BrowserRouter>
+        <RegisteredPage />
+      </BrowserRouter>,
+    );
+
     expect(
       screen.getByText(
-        /Thank you for registering! Please log in using your credentials/i
-      )
+        /Thank you for registering! Please log in using your credentials/i,
+      ),
     ).toBeInTheDocument();
   });
 
-  it("renders the login prompt and UserLogin component", () => {
-    render(<RegisteredPage />);
+  test("renders registered user login label", () => {
+    render(
+      <BrowserRouter>
+        <RegisteredPage />
+      </BrowserRouter>,
+    );
+
     expect(screen.getByText(/Registered user login:/i)).toBeInTheDocument();
-    expect(screen.getByTestId("user-login")).toBeInTheDocument();
   });
 
-  it("has correct layout structure", () => {
-    const { container } = render(<RegisteredPage />);
-    expect(
-      container.querySelector(".container.text-center")
-    ).toBeInTheDocument();
-    expect(container.querySelector(".row")).toBeInTheDocument();
-    expect(container.querySelectorAll(".col-12.col-md-8").length).toBe(1);
-    expect(container.querySelectorAll(".col-12.col-md-4").length).toBe(1);
+  test("renders UserLogin component", () => {
+    render(
+      <BrowserRouter>
+        <RegisteredPage />
+      </BrowserRouter>,
+    );
+
+    expect(screen.getByTestId("user-login-mock")).toBeInTheDocument();
+  });
+
+  test("renders layout with correct bootstrap columns", () => {
+    const { container } = render(
+      <BrowserRouter>
+        <RegisteredPage />
+      </BrowserRouter>,
+    );
+
+    const cols = container.querySelectorAll("[class*='col-']");
+    expect(cols.length).toBeGreaterThanOrEqual(2);
+
+    const col9 = Array.from(cols).find((col) =>
+      col.className.includes("col-md-9"),
+    );
+    const col3 = Array.from(cols).find((col) =>
+      col.className.includes("col-md-3"),
+    );
+
+    expect(col9).toBeInTheDocument();
+    expect(col3).toBeInTheDocument();
   });
 });

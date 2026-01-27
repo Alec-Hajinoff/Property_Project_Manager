@@ -1,140 +1,207 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { useNavigate } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import UserRegistration from "../UserRegistration";
+import { registerUser } from "../ApiService";
 
-jest.mock("react-router-dom", () => ({
-  useNavigate: jest.fn(),
+jest.mock("../ApiService", () => ({
+  registerUser: jest.fn(),
 }));
 
 describe("UserRegistration", () => {
-  let navigateMock;
-
   beforeEach(() => {
-    navigateMock = jest.fn();
-    useNavigate.mockReturnValue(navigateMock);
-
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        json: () => Promise.resolve({ success: true }),
-      })
-    );
-  });
-
-  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it("renders the registration form", () => {
-    render(<UserRegistration />);
-
-    expect(screen.getByPlaceholderText("Your full name")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Email address")).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText(
-        "Choose a strong password (minimum 8 characters)"
-      )
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /register/i })
-    ).toBeInTheDocument();
-  });
-
-  it("updates form data when input values change", () => {
-    render(<UserRegistration />);
-
-    const firstNameInput = screen.getByPlaceholderText("Your full name");
-    const emailInput = screen.getByPlaceholderText("Email address");
-    const passwordInput = screen.getByPlaceholderText(
-      "Choose a strong password (minimum 8 characters)"
+  test("renders name, email, and password input fields", () => {
+    render(
+      <BrowserRouter>
+        <UserRegistration />
+      </BrowserRouter>,
     );
 
-    fireEvent.change(firstNameInput, { target: { value: "John" } });
+    expect(screen.getByLabelText(/Full Name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
+  });
+
+  test("renders Register Account button and password hint", () => {
+    render(
+      <BrowserRouter>
+        <UserRegistration />
+      </BrowserRouter>,
+    );
+
+    expect(
+      screen.getByRole("button", { name: /Register Account/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Minimum 8 characters/i)).toBeInTheDocument();
+  });
+
+  test("updates form state on input change", () => {
+    render(
+      <BrowserRouter>
+        <UserRegistration />
+      </BrowserRouter>,
+    );
+
+    const nameInput = screen.getByLabelText(/Full Name/i);
+    const emailInput = screen.getByLabelText(/Email Address/i);
+    const passwordInput = screen.getByLabelText(/Password/i);
+
+    fireEvent.change(nameInput, { target: { value: "John Doe" } });
     fireEvent.change(emailInput, { target: { value: "john@example.com" } });
     fireEvent.change(passwordInput, { target: { value: "password123" } });
 
-    expect(firstNameInput.value).toBe("John");
-    expect(emailInput.value).toBe("john@example.com");
-    expect(passwordInput.value).toBe("password123");
+    expect(nameInput).toHaveValue("John Doe");
+    expect(emailInput).toHaveValue("john@example.com");
+    expect(passwordInput).toHaveValue("password123");
   });
 
-  it("submits the form and navigates to RegisteredPage on success", async () => {
-    render(<UserRegistration />);
-
-    const firstNameInput = screen.getByPlaceholderText("Your full name");
-    const emailInput = screen.getByPlaceholderText("Email address");
-    const passwordInput = screen.getByPlaceholderText(
-      "Choose a strong password (minimum 8 characters)"
-    );
-    const submitButton = screen.getByRole("button", { name: /register/i });
-
-    fireEvent.change(firstNameInput, { target: { value: "John" } });
-    fireEvent.change(emailInput, { target: { value: "john@example.com" } });
-    fireEvent.change(passwordInput, { target: { value: "password123" } });
-    fireEvent.click(submitButton);
-
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    expect(global.fetch).toHaveBeenCalledWith(
-      "http://localhost:8001/Readings_From_Sensors/form_capture.php",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: "John",
-          email: "john@example.com",
-          password: "password123",
-        }),
-        credentials: "include",
-      }
+  test("shows validation error when password is less than 8 characters", () => {
+    render(
+      <BrowserRouter>
+        <UserRegistration />
+      </BrowserRouter>,
     );
 
-    expect(navigateMock).toHaveBeenCalledWith("/RegisteredPage");
-  });
+    fireEvent.change(screen.getByLabelText(/Full Name/i), {
+      target: { value: "John Doe" },
+    });
 
-  it("displays an error message when registration fails", async () => {
-    global.fetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        json: () => Promise.resolve({ success: false }),
-      })
-    );
+    fireEvent.change(screen.getByLabelText(/Email Address/i), {
+      target: { value: "john@example.com" },
+    });
 
-    render(<UserRegistration />);
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: "short" },
+    });
 
-    const firstNameInput = screen.getByPlaceholderText("Your full name");
-    const emailInput = screen.getByPlaceholderText("Email address");
-    const passwordInput = screen.getByPlaceholderText(
-      "Choose a strong password (minimum 8 characters)"
-    );
-    const submitButton = screen.getByRole("button", { name: /register/i });
+    fireEvent.click(screen.getByRole("button", { name: /Register Account/i }));
 
-    fireEvent.change(firstNameInput, { target: { value: "John" } });
-    fireEvent.change(emailInput, { target: { value: "john@example.com" } });
-    fireEvent.change(passwordInput, { target: { value: "password123" } });
-    fireEvent.click(submitButton);
-
-    await new Promise((resolve) => setTimeout(resolve, 100));
     expect(
-      screen.getByText("Registration failed. Please try again.")
+      screen.getByText(/Password must be at least 8 characters long/i),
     ).toBeInTheDocument();
   });
 
-  it("displays an error message when fetch fails", async () => {
-    global.fetch.mockImplementationOnce(() =>
-      Promise.reject(new Error("Network error"))
+  test("submits form and navigates on successful registration", async () => {
+    registerUser.mockResolvedValueOnce({ success: true });
+
+    render(
+      <BrowserRouter>
+        <UserRegistration />
+      </BrowserRouter>,
     );
 
-    render(<UserRegistration />);
+    fireEvent.change(screen.getByLabelText(/Full Name/i), {
+      target: { value: "John Doe" },
+    });
 
-    const submitButton = screen.getByRole("button", { name: /register/i });
-    fireEvent.click(submitButton);
+    fireEvent.change(screen.getByLabelText(/Email Address/i), {
+      target: { value: "john@example.com" },
+    });
+
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: "password123" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Register Account/i }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText("Password must be at least 8 characters long")
-      ).toBeInTheDocument();
+      expect(registerUser).toHaveBeenCalledWith({
+        name: "John Doe",
+        email: "john@example.com",
+        password: "password123",
+      });
     });
+  });
+
+  test("shows error message when registration fails", async () => {
+    registerUser.mockResolvedValueOnce({ success: false });
+
+    render(
+      <BrowserRouter>
+        <UserRegistration />
+      </BrowserRouter>,
+    );
+
+    fireEvent.change(screen.getByLabelText(/Full Name/i), {
+      target: { value: "John Doe" },
+    });
+
+    fireEvent.change(screen.getByLabelText(/Email Address/i), {
+      target: { value: "john@example.com" },
+    });
+
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: "password123" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Register Account/i }));
+
+    expect(
+      await screen.findByText(/Registration failed. Please try again/i),
+    ).toBeInTheDocument();
+  });
+
+  test("shows error message when API throws error", async () => {
+    const error = new Error("Email already exists");
+    registerUser.mockRejectedValueOnce(error);
+
+    render(
+      <BrowserRouter>
+        <UserRegistration />
+      </BrowserRouter>,
+    );
+
+    fireEvent.change(screen.getByLabelText(/Full Name/i), {
+      target: { value: "John Doe" },
+    });
+
+    fireEvent.change(screen.getByLabelText(/Email Address/i), {
+      target: { value: "john@example.com" },
+    });
+
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: "password123" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Register Account/i }));
+
+    expect(
+      await screen.findByText(/Email already exists/i),
+    ).toBeInTheDocument();
+  });
+
+  test("shows loading state while submitting", async () => {
+    registerUser.mockImplementationOnce(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => resolve({ success: true }), 100),
+        ),
+    );
+
+    render(
+      <BrowserRouter>
+        <UserRegistration />
+      </BrowserRouter>,
+    );
+
+    fireEvent.change(screen.getByLabelText(/Full Name/i), {
+      target: { value: "John Doe" },
+    });
+
+    fireEvent.change(screen.getByLabelText(/Email Address/i), {
+      target: { value: "john@example.com" },
+    });
+
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: "password123" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Register Account/i }));
+
+    expect(screen.getByText(/Registering/i)).toBeInTheDocument();
+    expect(screen.getByRole("button")).toBeDisabled();
   });
 });

@@ -1,46 +1,86 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
 import MainRegLog from "../MainRegLog";
+import Main from "../Main";
+import UserRegistration from "../UserRegistration";
+import UserLogin from "../UserLogin";
 
-jest.mock("../Main", () => () => (
-  <div data-testid="main-component">Main Component</div>
-));
+jest.mock("../Main", () => () => <div data-testid="main-mock">Main</div>);
 jest.mock("../UserRegistration", () => () => (
-  <div data-testid="user-registration">User Registration</div>
+  <div data-testid="user-registration-mock">UserRegistration</div>
 ));
 jest.mock("../UserLogin", () => () => (
-  <div data-testid="user-login">User Login</div>
+  <div data-testid="user-login-mock">UserLogin</div>
 ));
 
-describe("MainRegLog component", () => {
-  it("renders the Main component", () => {
-    render(<MainRegLog />);
-    expect(screen.getByTestId("main-component")).toBeInTheDocument();
+describe("MainRegLog", () => {
+  test("renders Main component", () => {
+    render(
+      <BrowserRouter>
+        <MainRegLog />
+      </BrowserRouter>,
+    );
+
+    expect(screen.getByTestId("main-mock")).toBeInTheDocument();
   });
 
-  it("renders the UserRegistration component with correct label", () => {
-    render(<MainRegLog />);
-    expect(
-      screen.getByText(/New user\? Please register:/i)
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("user-registration")).toBeInTheDocument();
+  test("renders UserRegistration and UserLogin components", () => {
+    render(
+      <BrowserRouter>
+        <MainRegLog />
+      </BrowserRouter>,
+    );
+
+    expect(screen.getByTestId("user-registration-mock")).toBeInTheDocument();
+    expect(screen.getByTestId("user-login-mock")).toBeInTheDocument();
   });
 
-  it("renders the UserLogin component with correct label", () => {
-    render(<MainRegLog />);
+  test("renders descriptive text for registration and login sections", () => {
+    render(
+      <BrowserRouter>
+        <MainRegLog />
+      </BrowserRouter>,
+    );
+
     expect(
-      screen.getByText(/Existing user\? Please login:/i)
+      screen.getByText(
+        /New to Property Project Manager\? Register for an account/i,
+      ),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("user-login")).toBeInTheDocument();
+
+    expect(
+      screen.getByText(
+        /Already have an account\? Sign in to access your projects/i,
+      ),
+    ).toBeInTheDocument();
   });
 
-  it("has correct layout structure", () => {
-    const { container } = render(<MainRegLog />);
+  test("renders security disclaimer text", () => {
+    render(
+      <BrowserRouter>
+        <MainRegLog />
+      </BrowserRouter>,
+    );
+
     expect(
-      container.querySelector(".container.text-center")
+      screen.getByText(/Your data is securely stored and encrypted/i),
     ).toBeInTheDocument();
-    expect(container.querySelector(".row")).toBeInTheDocument();
-    expect(container.querySelectorAll(".col-12.col-md-8").length).toBe(1);
-    expect(container.querySelectorAll(".col-12.col-md-4").length).toBe(1);
+  });
+
+  test("renders main-reglog container and sidebar", () => {
+    const { container } = render(
+      <BrowserRouter>
+        <MainRegLog />
+      </BrowserRouter>,
+    );
+
+    const mainReglogContainer = container.querySelector(
+      ".main-reglog-container",
+    );
+    expect(mainReglogContainer).toBeInTheDocument();
+
+    const sidebar = container.querySelector(".sidebar");
+    expect(sidebar).toBeInTheDocument();
   });
 });

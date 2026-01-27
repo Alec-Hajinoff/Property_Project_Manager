@@ -1,45 +1,59 @@
+import React from "react";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AppRoutes from "../AppRoutes";
-import React from "react";
 
-describe("App Component", () => {
-  test("renders MainRegLog component", () => {
+jest.mock("../MainRegLog", () => () => (
+  <div data-testid="main-reg-log">MainRegLog</div>
+));
+jest.mock("../RegisteredPage", () => () => (
+  <div data-testid="registered-page">RegisteredPage</div>
+));
+jest.mock("../UserAccountWelcome", () => () => (
+  <div data-testid="user-account-welcome">UserAccountWelcome</div>
+));
+jest.mock("../LogoutComponent", () => () => (
+  <div data-testid="logout-component">LogoutComponent</div>
+));
+
+describe("AppRoutes", () => {
+  it("renders MainRegLog at /", () => {
     render(
       <MemoryRouter initialEntries={["/"]}>
         <AppRoutes />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
-    expect(screen.getByText(/Please register:/i)).toBeInTheDocument();
+
+    expect(screen.getByTestId("main-reg-log")).toBeInTheDocument();
   });
 
-  test("renders RegisteredPage component", () => {
+  it("renders RegisteredPage at /RegisteredPage", () => {
     render(
       <MemoryRouter initialEntries={["/RegisteredPage"]}>
         <AppRoutes />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(screen.getByText(/Thank you for registering!/i)).toBeInTheDocument();
+    expect(screen.getByTestId("registered-page")).toBeInTheDocument();
   });
 
-  test("renders PullReadings component when on /PullReadings path", () => {
+  it("renders UserAccountWelcome at /UserAccountWelcome", () => {
     render(
-      <MemoryRouter initialEntries={["/PullReadings"]}>
+      <MemoryRouter initialEntries={["/UserAccountWelcome"]}>
         <AppRoutes />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(screen.getByText(/Latest Sensor Readings:/i)).toBeInTheDocument();
+    expect(screen.getByTestId("user-account-welcome")).toBeInTheDocument();
   });
 
-  test("renders LogoutComponent component when on /LogoutComponent path", () => {
+  it("renders LogoutComponent at /LogoutComponent", () => {
     render(
       <MemoryRouter initialEntries={["/LogoutComponent"]}>
         <AppRoutes />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(screen.getByText(/Logout/i)).toBeInTheDocument();
+    expect(screen.getByTestId("logout-component")).toBeInTheDocument();
   });
 });

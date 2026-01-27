@@ -1,186 +1,91 @@
 import React from "react";
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
-import PullReadings from "../PullReadings";
-import { pullReadingsFunction, pullHistory } from "../ApiService";
+import { render, screen } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
+import UserAccountWelcome from "../UserAccountWelcome";
+import LogoutComponent from "../LogoutComponent";
+import CreateProject from "../CreateProject";
+import ExistingProjects from "../ExistingProjects";
 
-// Mock child components
-jest.mock("../Thermometer", () => ({ temperature }) => (
-  <div data-testid="thermometer">Thermometer: {temperature}</div>
-));
-jest.mock("../HumidityGauge", () => ({ humidity }) => (
-  <div data-testid="humidity-gauge">HumidityGauge: {humidity}</div>
-));
 jest.mock("../LogoutComponent", () => () => (
-  <button data-testid="logout-button">Logout</button>
-));
-jest.mock("../EmailAlerts", () => () => (
-  <div data-testid="email-alerts">EmailAlerts</div>
-));
-jest.mock("../HistoricGraph", () => ({ historyData }) => (
-  <div data-testid="historic-graph">
-    HistoricGraph with {historyData.length} points
-  </div>
+  <div data-testid="logout-component-mock">LogoutComponent</div>
 ));
 
-// Mock API functions
-jest.mock("../ApiService", () => ({
-  pullReadingsFunction: jest.fn(),
-  pullHistory: jest.fn(),
-}));
+jest.mock("../CreateProject", () => () => (
+  <div data-testid="create-project-mock">CreateProject</div>
+));
 
-describe("PullReadings component", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+jest.mock("../ExistingProjects", () => () => (
+  <div data-testid="existing-projects-mock">ExistingProjects</div>
+));
 
-  const mockSensorData = {
-    temperature: 22.5,
-    humidity: 55,
-    inserted_at: new Date().toISOString(),
-  };
-
-  const mockHistoryData = [
-    {
-      received_at: new Date().toISOString(),
-      temperature: 21.0,
-      humidity: 50,
-    },
-    {
-      received_at: new Date().toISOString(),
-      temperature: 23.0,
-      humidity: 60,
-    },
-  ];
-
-  it("renders loading state initially", async () => {
-    pullReadingsFunction.mockResolvedValue({
-      success: true,
-      data: mockSensorData,
-    });
-    pullHistory.mockResolvedValue({ success: true, data: mockHistoryData });
-
-    render(<PullReadings />);
-    expect(screen.getByText(/Loading sensor data/i)).toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(
-        screen.queryByText(/Loading sensor data/i)
-      ).not.toBeInTheDocument();
-    });
-  });
-
-  it("displays sensor data, history table, and graph on success", async () => {
-    pullReadingsFunction.mockResolvedValue({
-      success: true,
-      data: mockSensorData,
-    });
-    pullHistory.mockResolvedValue({ success: true, data: mockHistoryData });
-
-    render(<PullReadings />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("thermometer")).toBeInTheDocument();
-      expect(screen.getByTestId("humidity-gauge")).toBeInTheDocument();
-      expect(screen.getByTestId("email-alerts")).toBeInTheDocument();
-      expect(screen.getByTestId("historic-graph")).toHaveTextContent(
-        "2 points"
-      );
-    });
-
-    expect(
-      screen.getByText(
-        (content, element) =>
-          element.tagName.toLowerCase() === "p" && content.includes("22.5")
-      )
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText(
-        (content, element) =>
-          element.tagName.toLowerCase() === "p" && content.includes("55")
-      )
-    ).toBeInTheDocument();
-
-    expect(screen.getByRole("table")).toBeInTheDocument();
-  });
-
-  it("shows fallback message when history data is empty", async () => {
-    pullReadingsFunction.mockResolvedValue({
-      success: true,
-      data: mockSensorData,
-    });
-    pullHistory.mockResolvedValue({ success: true, data: [] });
-
-    render(<PullReadings />);
-
-    await waitFor(() => {
-      expect(
-        screen.getByText(/Historic readings will appear here/i)
-      ).toBeInTheDocument();
-    });
-  });
-
-  it("shows error messages when both API calls fail", async () => {
-    pullReadingsFunction.mockResolvedValue({ success: false });
-    pullHistory.mockResolvedValue({ success: false });
-
-    render(<PullReadings />);
-
-    await waitFor(() => {
-      const alerts = screen.getAllByRole("alert");
-      expect(alerts[0]).toHaveTextContent("Failed to load sensor data");
-      expect(alerts[1]).toHaveTextContent("Failed to load historic readings");
-    });
-  });
-
-  it("handles partial failure: sensor success, history failure", async () => {
-    pullReadingsFunction.mockResolvedValue({
-      success: true,
-      data: mockSensorData,
-    });
-    pullHistory.mockResolvedValue({ success: false });
-
-    render(<PullReadings />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("thermometer")).toBeInTheDocument();
-      expect(screen.getByTestId("humidity-gauge")).toBeInTheDocument();
-      expect(
-        screen.getByText("Failed to load historic readings")
-      ).toBeInTheDocument();
-    });
-  });
-
-  it("disables Refresh button while loading", async () => {
-    let resolveFetch;
-    pullReadingsFunction.mockImplementation(
-      () => new Promise((resolve) => (resolveFetch = resolve))
+describe("UserAccountWelcome", () => {
+  test("renders welcome heading", () => {
+    render(
+      <BrowserRouter>
+        <UserAccountWelcome />
+      </BrowserRouter>,
     );
-    pullHistory.mockResolvedValue({ success: true, data: mockHistoryData });
 
-    render(<PullReadings />);
-    const refreshButton = screen.getByRole("button", { name: /Refresh/i });
-    expect(refreshButton).toBeDisabled();
-
-    resolveFetch({ success: true, data: mockSensorData });
-    await waitFor(() => expect(refreshButton).not.toBeDisabled());
+    expect(screen.getByText(/Welcome to your dashboard/i)).toBeInTheDocument();
   });
 
-  it("refreshes data when Refresh button is clicked", async () => {
-    pullReadingsFunction.mockResolvedValue({
-      success: true,
-      data: mockSensorData,
-    });
-    pullHistory.mockResolvedValue({ success: true, data: mockHistoryData });
+  test("renders welcome subheading with project management description", () => {
+    render(
+      <BrowserRouter>
+        <UserAccountWelcome />
+      </BrowserRouter>,
+    );
 
-    render(<PullReadings />);
-    await waitFor(() => screen.getByRole("button", { name: /Refresh/i }));
+    expect(
+      screen.getByText(
+        /Manage your building projects, track progress, and maintain/i,
+      ),
+    ).toBeInTheDocument();
+  });
 
-    fireEvent.click(screen.getByRole("button", { name: /Refresh/i }));
+  test("renders LogoutComponent", () => {
+    render(
+      <BrowserRouter>
+        <UserAccountWelcome />
+      </BrowserRouter>,
+    );
 
-    await waitFor(() => {
-      expect(pullReadingsFunction).toHaveBeenCalledTimes(2);
-      expect(pullHistory).toHaveBeenCalledTimes(2);
-    });
+    expect(screen.getByTestId("logout-component-mock")).toBeInTheDocument();
+  });
+
+  test("renders CreateProject component", () => {
+    render(
+      <BrowserRouter>
+        <UserAccountWelcome />
+      </BrowserRouter>,
+    );
+
+    expect(screen.getByTestId("create-project-mock")).toBeInTheDocument();
+  });
+
+  test("renders ExistingProjects component", () => {
+    render(
+      <BrowserRouter>
+        <UserAccountWelcome />
+      </BrowserRouter>,
+    );
+
+    expect(screen.getByTestId("existing-projects-mock")).toBeInTheDocument();
+  });
+
+  test("renders all main container divs with correct classes", () => {
+    const { container } = render(
+      <BrowserRouter>
+        <UserAccountWelcome />
+      </BrowserRouter>,
+    );
+
+    expect(container.querySelector(".dashboard-container")).toBeInTheDocument();
+    expect(container.querySelector(".dashboard-content")).toBeInTheDocument();
+    expect(container.querySelector(".dashboard-header")).toBeInTheDocument();
+    expect(container.querySelector(".dashboard-welcome")).toBeInTheDocument();
+    expect(
+      container.querySelector(".components-container"),
+    ).toBeInTheDocument();
   });
 });
